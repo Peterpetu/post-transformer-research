@@ -1,0 +1,56 @@
+{
+ "exp": "e2_reservoir",
+ "arm": "gru",
+ "seed": 0,
+ "ctx": 64,
+ "budget": {
+  "bytes": 6000000,
+  "batch": 64,
+  "lr": 0.002,
+  "warmup": 100,
+  "clip": 1.0,
+  "weight_decay": 0.05,
+  "eval_every": 0
+ },
+ "mechanism_params": 0,
+ "trainable_params": 395008,
+ "share": 0.0,
+ "val_bpb": 1.566527026433566,
+ "curve": [
+  {
+   "step": 366,
+   "bytes": 1499136,
+   "train_bits": 1.9733166598782477,
+   "val_bpb": 1.879709196476912,
+   "sec": 42.0829017162323
+  },
+  {
+   "step": 732,
+   "bytes": 2998272,
+   "train_bits": 1.7447694310946138,
+   "val_bpb": 1.6650182067889565,
+   "sec": 84.78362607955933
+  },
+  {
+   "step": 1098,
+   "bytes": 4497408,
+   "train_bits": 1.6690628298484975,
+   "val_bpb": 1.5928737608349033,
+   "sec": 123.81684756278992
+  },
+  {
+   "step": 1464,
+   "bytes": 5996544,
+   "train_bits": 1.6332743168153414,
+   "val_bpb": 1.566527026433566,
+   "sec": 161.53883981704712
+  }
+ ],
+ "wall_s": 161.53891324996948,
+ "torch": "2.14.1+cu130",
+ "threads": 2,
+ "d": 128,
+ "params": 395008,
+ "fixed_mechanism_params": 0,
+ "share_all": 0.0
+}

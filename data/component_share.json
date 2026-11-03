@@ -1,0 +1,38 @@
+[
+ {
+  "label": "Chaotic Reservoir LM — chaos gate",
+  "pct": 2.68e-05
+ },
+ {
+  "label": "DRN — Kuramoto ‘resonance’",
+  "pct": 0.0016
+ },
+ {
+  "label": "DPNCA-LM — all cross-position mixing",
+  "pct": 0.083
+ },
+ {
+  "label": "olento — opcode-patched weights",
+  "pct": 0.127
+ },
+ {
+  "label": "Chaotic Reservoir LM — reservoir W_res",
+  "pct": 0.202
+ },
+ {
+  "label": "DRN — genome (weight generator)",
+  "pct": 0.2605
+ },
+ {
+  "label": "NCALM v13 — morphogen field",
+  "pct": 0.39
+ },
+ {
+  "label": "NCALM v7.1 — non-transformer part",
+  "pct": 7.7
+ },
+ {
+  "label": "APCN-LM — non-transformer part",
+  "pct": 30.0
+ }
+]

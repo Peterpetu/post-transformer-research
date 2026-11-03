@@ -1,0 +1,53 @@
+{
+ "exp": "e6_predcode",
+ "arm": "pc_k3_lr0.032",
+ "seed": 0,
+ "ctx": 64,
+ "budget": {
+  "bytes": 6000000,
+  "batch": 64,
+  "lr": 0.032,
+  "warmup": 100,
+  "clip": 1.0,
+  "weight_decay": 0.05,
+  "eval_every": 0
+ },
+ "mechanism_params": 49920,
+ "trainable_params": 230656,
+ "share": 0.21642619311875694,
+ "val_bpb": NaN,
+ "curve": [
+  {
+   "step": 366,
+   "bytes": 1499136,
+   "train_bits": NaN,
+   "val_bpb": NaN,
+   "sec": 66.85717821121216
+  },
+  {
+   "step": 732,
+   "bytes": 2998272,
+   "train_bits": NaN,
+   "val_bpb": NaN,
+   "sec": 134.02612042427063
+  },
+  {
+   "step": 1098,
+   "bytes": 4497408,
+   "train_bits": NaN,
+   "val_bpb": NaN,
+   "sec": 199.8953139781952
+  },
+  {
+   "step": 1464,
+   "bytes": 5996544,
+   "train_bits": NaN,
+   "val_bpb": NaN,
+   "sec": 266.2262234687805
+  }
+ ],
+ "wall_s": 266.2263126373291,
+ "torch": "2.14.1+cu130",
+ "threads": 2,
+ "params": 230656
+}

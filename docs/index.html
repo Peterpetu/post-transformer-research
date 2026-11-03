@@ -1,0 +1,828 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="An audit of sixteen post-transformer language-model architectures, 2024–2026: method, evidence grading, what survived, the ranked table, and the cross-cutting finding.">
+<meta property="og:title" content="Post-Transformer Research">
+<meta property="og:description" content="Sixteen architectures, one standard, no winners. What twenty months of attention-free and backprop-free language-model research measured.">
+<meta property="og:type" content="article">
+<meta property="og:image" content="https://peterpetu.github.io/post-transformer-research/figures/ranking.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)} img{max-width:100%} [hidden]{display:none!important}</style>
+<title>Post-Transformer Research</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@100..125,400..800&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap">
+<style>
+/* Design plan
+   Subject: a researcher's audit of sixteen of his own language-model architectures; audience arriving from LinkedIn.
+   Color: stone paper #eeefeb, blue-black ink #1a1e23, and the three colours his repositories' figures already use:
+          blue #2a78d6 (measured against a fair baseline), orange #eb6834 (measured without one), green #1baf7a; grey for never-learned, sand for unbuilt.
+   Type:  Archivo, set wide (wdth 112) for headings, numbers and chart labels; Source Serif 4 for running text.
+   Layout: the hero is the audit's own ranking, drawn live. Below it, a label rail on the left and content on the right, like a report.
+   Principle: every result is drawn against a dashed line for the thing it was meant to replace. Blue means measured. Nothing decorative. */
+:root{
+  --wide-lineup:1320px;
+  --paper:#eeefeb; --card:#f7f8f5; --ink:#1a1e23; --ink2:#596069; --ink3:#8b9199; --rule:#d3d6d1; --rule2:#1a1e23;
+  --blue:#2a78d6; --orange:#eb6834; --aqua:#1baf7a; --grey:#9ea39f; --sand:#c9ccc5;
+  --display:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --serif:"Source Serif 4",Georgia,"Times New Roman",serif;
+  --wide:1120px; --measure:60ch;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#12161a; --card:#181d22; --ink:#e9e9e3; --ink2:#aab0b7; --ink3:#737a82; --rule:#2a3036; --rule2:#e9e9e3;
+    --blue:#5b9ded; --orange:#f08a60; --aqua:#3ccb98; --grey:#5d636a; --sand:#3b4147;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#12161a; --card:#181d22; --ink:#e9e9e3; --ink2:#aab0b7; --ink3:#737a82; --rule:#2a3036; --rule2:#e9e9e3;
+  --blue:#5b9ded; --orange:#f08a60; --aqua:#3ccb98; --grey:#5d636a; --sand:#3b4147;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--serif);font-size:17px;line-height:1.55;font-variation-settings:"opsz" 17}
+a{color:var(--ink);text-decoration:underline;text-decoration-color:var(--ink3);text-underline-offset:3px}
+a:hover{text-decoration-color:var(--ink)}
+a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+.wrap{max-width:var(--wide);margin:0 auto;padding-inline:20px;padding-block:0}
+h1,h2,h3,.disp{font-family:var(--display);font-variation-settings:"wdth" 112;font-weight:700;line-height:1.02;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1{font-size:clamp(2.4rem,5.6vw,4rem)}
+h2{font-size:1.65rem}
+h3{font-size:1.45rem}
+p{margin:0}
+.num{font-family:var(--display);font-variation-settings:"wdth" 112;font-weight:700;font-variant-numeric:tabular-nums}
+.muted{color:var(--ink2)}
+.small{font-size:.92rem}
+
+/* nav */
+.nav{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--paper);border-bottom:1px solid var(--rule)}
+.nav .wrap{display:flex;gap:22px;align-items:center;min-height:48px;overflow-x:auto;scrollbar-width:none;font-family:var(--display)}
+.nav .wrap::-webkit-scrollbar{display:none}
+.nav a{text-decoration:none;white-space:nowrap;font-size:.95rem;color:var(--ink2)}
+.nav a:hover{color:var(--ink)}
+.nav a.brand{font-weight:700;color:var(--ink);font-variation-settings:"wdth" 112}
+.nav .sp{flex:1}
+
+/* hero: the ranking */
+.hero{padding-block:56px 48px;border-bottom:1px solid var(--rule2)}
+.hero .wrap{display:grid;gap:30px;max-width:var(--wide-lineup)}
+.hero .intro{display:grid;gap:18px;max-width:46rem}
+.hero .intro p{font-size:1.18rem;line-height:1.5;color:var(--ink2);max-width:var(--measure);text-wrap:pretty}
+.hero .intro .by{font-family:var(--display);font-size:.95rem;color:var(--ink2)}
+/* the lineup: five schematics, left to right in the order they were built */
+.lineup{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:10px;margin-inline:-20px;padding-inline:20px;scrollbar-width:thin}
+.lineup > figure{flex:0 0 232px;scroll-snap-align:start;margin:0;display:grid;gap:8px;align-content:start;min-width:0;background:var(--card);border:1px solid var(--rule);padding:14px 14px 16px}
+@media (min-width:1000px){.lineup{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));overflow:visible;margin-inline:0;padding-inline:0;padding-bottom:0}.lineup > figure{flex:none}}
+@media (min-width:1180px){.lineup{grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}.lineup > figure{padding:12px 12px 14px}}
+.lineup svg{display:block;width:100%;max-width:280px;margin:0 auto;height:auto;color:var(--ink)}
+.lineup figcaption{display:grid;gap:3px}
+.lineup figcaption b{font-family:var(--display);font-weight:700;font-size:1.05rem;font-variation-settings:"wdth" 112}
+.lineup figcaption span{font-size:.9rem;color:var(--ink2);line-height:1.35}
+.lineup figcaption .when{font-family:var(--display);font-size:.82rem;color:var(--ink3)}
+.lineup .s{fill:none;stroke:currentColor;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+.lineup .s.b{stroke:var(--blue)} .lineup .s.g{stroke:var(--ink3)} .lineup .s.d{stroke-dasharray:4 4}
+.lineup .f{fill:var(--ink3)} .lineup .f.b{fill:var(--blue)} .lineup .f.p{fill:var(--card)}
+.lineup .s.w{stroke-width:2.2}
+.lineup text{font-family:var(--display);font-size:11px;fill:var(--ink2)}
+@media (prefers-reduced-motion:no-preference){
+  .lineup.draw .s{stroke-dasharray:600;stroke-dashoffset:600;animation:draw 1.1s cubic-bezier(.4,0,.2,1) forwards;animation-delay:var(--d,0s)}
+  .lineup.draw .s.d{stroke-dasharray:600;animation-name:drawd}
+  .lineup.draw .f{opacity:0;animation:fade .5s ease forwards;animation-delay:calc(var(--d,0s) + .8s)}
+  .lineup.draw text{opacity:0;animation:fade .5s ease forwards;animation-delay:calc(var(--d,0s) + .9s)}
+}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes drawd{to{stroke-dashoffset:0;stroke-dasharray:4 4}}
+@keyframes fade{to{opacity:1}}
+.hero .note{font-family:var(--display);font-size:.88rem;color:var(--ink3)}
+.ranked{display:grid;gap:18px}
+.legend{display:grid;gap:8px;font-family:var(--display);font-size:.9rem;color:var(--ink2)}
+.legend span{display:flex;align-items:center;gap:10px}
+.legend i{display:inline-block;width:14px;height:14px;flex:none}
+.legend .n{margin-left:auto;font-variant-numeric:tabular-nums;color:var(--ink)}
+
+/* report sections */
+section{padding-block:48px 56px;border-bottom:1px solid var(--rule)}
+section:last-of-type{border-bottom:0}
+.sec{display:grid;grid-template-columns:1fr;gap:18px 40px}
+@media (min-width:900px){.sec{grid-template-columns:220px minmax(0,1fr)}}
+.sec > *{min-width:0}
+.rail{display:grid;gap:10px;align-content:start}
+@media (min-width:900px){.rail{position:sticky;top:calc(env(safe-area-inset-top,0px) + 64px)}}
+.rail p{font-size:.98rem;color:var(--ink2);text-wrap:pretty}
+.content{display:grid;gap:0}
+
+/* survivors */
+.row{display:grid;grid-template-columns:1fr;gap:16px 36px;padding-block:28px;border-top:1px solid var(--rule)}
+.row:first-child{border-top:0;padding-top:0}
+@media (min-width:760px){.row{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}}
+.row > *{min-width:0}
+.row .text{display:grid;gap:12px;align-content:start}
+.row .text p{font-size:1.02rem;color:var(--ink2);text-wrap:pretty;max-width:46ch}
+.row .big{font-size:2.5rem;line-height:1}
+.row .big .u{font-family:var(--display);font-weight:400;font-size:.95rem;color:var(--ink2);display:block;margin-top:6px;font-variation-settings:"wdth" 100}
+.row .vis{display:grid;gap:10px;align-content:start;background:var(--card);border:1px solid var(--rule);padding:14px}
+.row .vis svg{display:block;width:100%;height:auto}
+.row a.repo{font-family:var(--display);font-size:.95rem}
+.readout{font-family:var(--display);font-size:.9rem;color:var(--ink2);font-variant-numeric:tabular-nums}
+.readout b{font-weight:700;color:var(--blue)}
+.controls{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;font-family:var(--display);font-size:.9rem;color:var(--ink2)}
+.controls label{display:flex;align-items:center;gap:8px}
+.controls input[type=range]{width:120px;accent-color:var(--blue)}
+.controls output{min-width:2ch;color:var(--ink);font-variant-numeric:tabular-nums}
+.btn{font:inherit;font-family:var(--display);font-size:.9rem;border:1px solid var(--ink);background:transparent;color:var(--ink);padding:6px 12px;cursor:pointer}
+.btn:hover{background:var(--ink);color:var(--paper)}
+.content > .btn{justify-self:start}
+.sw{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:.92rem;cursor:pointer;user-select:none}
+.sw input{appearance:none;width:34px;height:20px;border-radius:999px;background:var(--sand);position:relative;margin:0;cursor:pointer;flex:none}
+.sw input::after{content:"";position:absolute;top:2px;left:2px;width:16px;height:16px;border-radius:50%;background:var(--card)}
+.sw input:checked{background:var(--blue)}
+.sw input:checked::after{left:16px}
+
+/* charts */
+.chart svg{display:block;width:100%;height:auto;max-width:100%}
+.chart text,.vis text{font-family:var(--display);font-size:11.5px;fill:var(--ink2);font-variant-numeric:tabular-nums}
+.chart .grid line,.vis .grid line{stroke:var(--rule);stroke-dasharray:2 3}
+.chart .axis line,.vis .axis line{stroke:var(--rule)}
+text.lbl{fill:var(--ink);font-size:12.5px;paint-order:stroke;stroke:var(--paper);stroke-width:3px;stroke-linejoin:round}
+text.cap{fill:var(--ink2);font-size:12px}
+.tip{position:fixed;left:0;top:0;pointer-events:none;background:var(--ink);color:var(--paper);font-family:var(--display);font-size:12.5px;line-height:1.35;padding:7px 10px;max-width:300px;z-index:30;white-space:pre-line;transform:translate(-50%,calc(-100% - 12px))}
+.tip[hidden]{display:none}
+
+.legend-inline{display:inline-flex;align-items:center;gap:7px}
+.legend-inline i{display:inline-block;width:10px;height:10px;border-radius:50%}
+.tbl-wrap[hidden]{display:none}
+#lb-chart g.mark{transition:transform .6s cubic-bezier(.4,0,.2,1)}
+#lb-chart{overflow-x:auto} #lb-chart svg{min-width:680px}
+@media (prefers-reduced-motion:reduce){#lb-chart g.mark{transition:none}}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;border:1px solid var(--rule);background:var(--card)}
+table.rank{border-collapse:collapse;width:100%;font-size:.92rem}
+table.rank th,table.rank td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--rule);vertical-align:top}
+table.rank th{font-family:var(--display);font-size:.8rem;color:var(--ink3);font-weight:500;white-space:nowrap}
+table.rank td.n,table.rank th.n{font-family:var(--display);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap}
+table.rank tr:last-child td{border-bottom:0}
+
+/* finding */
+.cuts{display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid var(--rule);margin-top:22px}
+.cuts[hidden],.cutkey[hidden]{display:none}
+@media (min-width:760px){.cuts{grid-template-columns:1fr 1fr;column-gap:36px}}
+.cuts > div{display:grid;grid-template-columns:140px minmax(0,1fr);gap:4px 14px;padding-block:10px;border-bottom:1px solid var(--rule);font-size:.95rem;min-width:0}
+.cuts .p{font-family:var(--display);font-weight:700;color:var(--ink)}
+.cuts .m{color:var(--ink)}
+.cuts .h{grid-column:2;color:var(--ink2);font-size:.9rem}
+.cuts .h::before{content:"";display:inline-block;width:9px;height:9px;margin-right:7px;background:var(--grey);vertical-align:0}
+.cuts .h.detached::before{background:var(--orange)} .cuts .h.flag::before{background:var(--blue)}
+.cutkey{display:flex;flex-wrap:wrap;gap:8px 18px;font-family:var(--display);font-size:.88rem;color:var(--ink2);margin-top:12px}
+.cutkey i{display:inline-block;width:9px;height:9px;margin-right:7px}
+.pair{display:grid;grid-template-columns:1fr;gap:28px;margin-top:40px}
+@media (min-width:860px){.pair{grid-template-columns:1fr 1fr}}
+.pair > div{min-width:0;display:grid;gap:10px;align-content:start}
+.pair p{font-size:.95rem;color:var(--ink2);text-wrap:pretty}
+
+/* standard */
+.grades{display:grid;grid-template-columns:1fr;gap:0;border-top:1px solid var(--rule)}
+.grades > div{display:grid;grid-template-columns:150px minmax(0,1fr);gap:14px;padding-block:14px;border-bottom:1px solid var(--rule);align-items:baseline}
+.grades .g{font-family:var(--display);font-weight:700;font-size:1.3rem;font-variation-settings:"wdth" 112}
+.grades p{color:var(--ink2);font-size:1rem;max-width:52ch}
+.passes{display:grid;grid-template-columns:repeat(auto-fit,minmax(165px,1fr));gap:22px;margin-top:30px}
+.passes > div{display:grid;gap:6px;align-content:start}
+.passes .k{font-family:var(--display);font-weight:700;font-size:1.1rem}
+.passes p{font-size:.95rem;color:var(--ink2);text-wrap:pretty}
+.habit{margin-top:36px;display:grid;gap:8px;max-width:var(--measure)}
+.habit .q{font-family:var(--display);font-variation-settings:"wdth" 112;font-weight:700;font-size:clamp(1.4rem,3vw,1.9rem);line-height:1.1}
+.habit p{color:var(--ink2);font-size:1rem}
+
+/* repos */
+.repos{display:grid;grid-template-columns:1fr;border-top:1px solid var(--rule)}
+@media (min-width:760px){.repos{grid-template-columns:1fr 1fr;column-gap:36px}}
+.repos a{display:grid;gap:3px;padding-block:12px;border-bottom:1px solid var(--rule);text-decoration:none}
+.repos a:hover .n{color:var(--blue)}
+.repos .n{font-family:var(--display);font-weight:700}
+.repos .d{font-size:.95rem;color:var(--ink2)}
+footer{padding-block:28px 64px;color:var(--ink3);font-size:.92rem}
+footer .wrap{display:grid;gap:4px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+
+
+<nav class="nav" aria-label="Sections"><div class="wrap">
+  <a class="brand" href="#top">Post-transformer research</a>
+  <a href="#survived">What survived</a>
+  <a href="#ranked">Ranked</a>
+  <a href="#finding">The finding</a>
+  <a href="#nullarm">The null arm</a>
+  <a href="#standard">The standard</a>
+  <a href="#repos">Repositories</a>
+  <span class="sp"></span>
+  <a href="https://github.com/Peterpetu/post-transformer-research">GitHub</a>
+</div></nav>
+
+<header class="hero" id="top"><div class="wrap">
+  <div class="intro">
+    <div class="by">Peter Lahtinen, 2024–2026</div>
+    <h1>Sixteen architectures, one standard, no winners.</h1>
+    <p>Twenty months of attention-free, backprop-free and grown language models, audited by one rule: a number counts only if it traces to a run and a fair control. Three real models survived. All three lose to a same-size transformer. The useful part is why the rest never had a chance.</p>
+  </div>
+  <div class="lineup draw" id="lineup" aria-label="The six surviving architectures, in the order they were built">
+
+    <figure style="--d:0s">
+      <svg viewBox="0 0 220 200" role="img" aria-label="Two towers on one base: a GPT-2 baseline in grey and a local-rule variant in blue, trained under the same protocol">
+        <text x="64" y="18" text-anchor="middle">GPT-2</text><text x="156" y="18" text-anchor="middle">local rule</text>
+        <rect class="s g w" x="30" y="132" width="68" height="28"/><rect class="s g w" x="30" y="96" width="68" height="28"/><rect class="s g w" x="30" y="60" width="68" height="28"/><rect class="s g w" x="30" y="24" width="68" height="28"/>
+        <path class="s g" d="M48 46 L64 30 M58 46 L64 30 M70 46 L64 30 M80 46 L64 30"/>
+        <rect class="s b w" x="122" y="132" width="68" height="28"/><rect class="s b w" x="122" y="96" width="68" height="28"/><rect class="s b w" x="122" y="60" width="68" height="28"/><rect class="s b w" x="122" y="24" width="68" height="28"/>
+        <rect class="f b" x="137" y="32" width="10" height="10"/><rect class="f b" x="151" y="32" width="10" height="10"/><rect class="f b" x="165" y="32" width="10" height="10"/>
+        <path class="s g" d="M104 72 h12 M104 78 h12 M104 108 h12 M104 114 h12 M104 144 h12 M104 150 h12"/>
+        <rect class="f" x="18" y="172" width="184" height="10"/>
+        <line class="s g w" x1="64" y1="172" x2="64" y2="160"/><line class="s g w" x1="156" y1="172" x2="156" y2="160"/>
+      </svg>
+      <figcaption><b>NCALM</b><span>Fifteen local update rules against one matched GPT-2: same tokens, seed and schedule. The closest trailed at 29 of 30 checkpoints.</span><span class="when">February to April 2026</span></figcaption>
+    </figure>
+
+    <figure style="--d:.25s">
+      <svg viewBox="0 0 220 200" role="img" aria-label="A transformer block whose attention sublayer is a cellular automaton iterated six times over a strip of cells">
+        <line class="s g w" x1="24" y1="186" x2="24" y2="22"/><path class="s g w" d="M18 29 L24 22 L30 29"/>
+        <path class="s g" d="M24 164 h18 M24 96 h18"/>
+        <rect class="s g w" x="42" y="140" width="156" height="46"/><text x="120" y="167" text-anchor="middle">feed-forward</text>
+        <rect class="s b w" x="42" y="34" width="156" height="92"/>
+        <rect class="f" x="54" y="80" width="15" height="15"/><rect class="f" x="72" y="80" width="15" height="15"/><rect class="f" x="90" y="80" width="15" height="15"/><rect class="f" x="108" y="80" width="15" height="15"/><rect class="f" x="126" y="80" width="15" height="15"/><rect class="f" x="144" y="80" width="15" height="15"/><rect class="f" x="162" y="80" width="15" height="15"/><rect class="f b" x="180" y="80" width="15" height="15"/>
+        <path class="s b w" d="M133 78 Q160 50 187 78 M151 78 Q169 60 187 78 M169 78 Q178 70 187 78"/>
+        <path class="s b w" d="M198 116 a9 9 0 1 1 0 -14"/><path class="s b w" d="M194 100 L198 102 L197 106"/>
+        <text x="54" y="50">cellular automaton</text><text x="54" y="118">×6 steps</text>
+        <text x="30" y="196">×12</text>
+      </svg>
+      <figcaption><b>DPNCA-LM</b><span>Attention replaced by a causal cellular automaton. 0.083% of the parameters carry every cross-position signal.</span><span class="when">April 2026</span></figcaption>
+    </figure>
+
+    <figure style="--d:.5s">
+      <svg viewBox="0 0 220 200" role="img" aria-label="A row of complex-valued positions; the current one reads dilated taps at offsets one, two, four and eight, read out through a squared magnitude">
+        <text x="110" y="34" text-anchor="middle">taps at 1, 2, 4, 8</text>
+        <circle class="s g w" cx="22" cy="118" r="10"/><circle class="s g w" cx="44" cy="118" r="10"/><circle class="s g w" cx="66" cy="118" r="10"/><circle class="s g w" cx="88" cy="118" r="10"/><circle class="s g w" cx="110" cy="118" r="10"/><circle class="s g w" cx="132" cy="118" r="10"/><circle class="s g w" cx="154" cy="118" r="10"/><circle class="s g w" cx="176" cy="118" r="10"/><circle class="s b w" cx="198" cy="118" r="10"/>
+        <path class="s g w" d="M22 118 l6 -7 M44 118 l-8 4 M66 118 l2 -9 M88 118 l9 2 M110 118 l-5 -8 M132 118 l8 -5 M154 118 l-9 -2 M176 118 l4 8"/><path class="s b w" d="M198 118 l8 -6"/>
+        <path class="s b w" d="M198 106 Q187 90 176 106 M198 106 Q176 72 154 106 M198 106 Q154 44 110 106 M198 106 Q110 10 22 106"/>
+        <line class="s g w" x1="198" y1="128" x2="198" y2="150"/>
+        <rect class="s g w" x="150" y="150" width="56" height="26"/><text x="178" y="167" text-anchor="middle">|ψ|²</text>
+        <text x="14" y="166">×12 steps</text>
+      </svg>
+      <figcaption><b>WaveLM</b><span>A complex-valued byte model advanced by dilated causal taps. Real, and beaten at every size.</span><span class="when">May 2026</span></figcaption>
+    </figure>
+
+    <figure style="--d:.75s">
+      <svg viewBox="0 0 220 200" role="img" aria-label="Two blocks over two time steps; forward arrows in grey and the credit the local rule carries in blue, with a phasor ring for the representation">
+        <circle class="s b w" cx="30" cy="30" r="16"/><path class="s b" d="M30 14 v5 M46 30 h-5 M30 46 v-5 M14 30 h5 M41 19 l-3 3 M41 41 l-3 -3 M19 41 l3 -3 M19 19 l3 3"/>
+        <rect class="s g w" x="36" y="134" width="64" height="30"/><rect class="s g w" x="36" y="70" width="64" height="30"/><rect class="s g w" x="130" y="134" width="64" height="30"/><rect class="s g w" x="130" y="70" width="64" height="30"/>
+        <path class="s g w" d="M68 134 V100 M63 106 L68 100 L73 106 M162 134 V100 M157 106 L162 100 L167 106"/>
+        <path class="s g w" d="M100 78 H130 M124 73 L130 78 L124 83 M100 142 H130 M124 137 L130 142 L124 147"/>
+        <path class="s b w" d="M130 92 H100 M106 87 L100 92 L106 97 M130 156 H100 M106 151 L100 156 L106 161"/>
+        <path class="s b w" d="M204 100 V134 M199 128 L204 134 L209 128"/>
+        <text x="68" y="182" text-anchor="middle">t − 1</text><text x="162" y="182" text-anchor="middle">t</text>
+      </svg>
+      <figcaption><b>HDC-LM</b><span>A phasor model (the ring) trained by a local rule instead of backprop, controlled by the same model under BPTT. Blue is the credit the rule carries back in time.</span><span class="when">July to August 2026</span></figcaption>
+    </figure>
+
+    <figure style="--d:1s">
+      <svg viewBox="0 0 220 200" role="img" aria-label="A short genome decoded into a large weight grid, beside a dashed arrow for simply copying a trained model's weights">
+        <rect class="f b" x="14" y="100" width="12" height="12"/><rect class="f b" x="28" y="100" width="12" height="12"/><rect class="f b" x="42" y="100" width="12" height="12"/><rect class="f b" x="56" y="100" width="12" height="12"/><rect class="f b" x="70" y="100" width="12" height="12"/>
+        <text x="48" y="130" text-anchor="middle">20 KB</text>
+        <path class="s b w" d="M86 106 H100 M95 101 L100 106 L95 111"/>
+        <path class="s b w" d="M104 92 L124 66 V146 L104 120 Z"/>
+        <g class="f"><rect x="132" y="52" width="9" height="9"/><rect x="143" y="52" width="9" height="9"/><rect x="154" y="52" width="9" height="9"/><rect x="165" y="52" width="9" height="9"/><rect x="176" y="52" width="9" height="9"/><rect x="187" y="52" width="9" height="9"/><rect x="198" y="52" width="9" height="9"/>
+        <rect x="132" y="63" width="9" height="9"/><rect x="143" y="63" width="9" height="9"/><rect x="154" y="63" width="9" height="9"/><rect x="165" y="63" width="9" height="9"/><rect x="176" y="63" width="9" height="9"/><rect x="187" y="63" width="9" height="9"/><rect x="198" y="63" width="9" height="9"/>
+        <rect x="132" y="74" width="9" height="9"/><rect x="143" y="74" width="9" height="9"/><rect x="154" y="74" width="9" height="9"/><rect x="165" y="74" width="9" height="9"/><rect x="176" y="74" width="9" height="9"/><rect x="187" y="74" width="9" height="9"/><rect x="198" y="74" width="9" height="9"/>
+        <rect x="132" y="85" width="9" height="9"/><rect x="143" y="85" width="9" height="9"/><rect x="154" y="85" width="9" height="9"/><rect x="165" y="85" width="9" height="9"/><rect x="176" y="85" width="9" height="9"/><rect x="187" y="85" width="9" height="9"/><rect x="198" y="85" width="9" height="9"/>
+        <rect x="132" y="96" width="9" height="9"/><rect x="143" y="96" width="9" height="9"/><rect x="154" y="96" width="9" height="9"/><rect x="165" y="96" width="9" height="9"/><rect x="176" y="96" width="9" height="9"/><rect x="187" y="96" width="9" height="9"/><rect x="198" y="96" width="9" height="9"/>
+        <rect x="132" y="107" width="9" height="9"/><rect x="143" y="107" width="9" height="9"/><rect x="154" y="107" width="9" height="9"/><rect x="165" y="107" width="9" height="9"/><rect x="176" y="107" width="9" height="9"/><rect x="187" y="107" width="9" height="9"/><rect x="198" y="107" width="9" height="9"/>
+        <rect x="132" y="118" width="9" height="9"/><rect x="143" y="118" width="9" height="9"/><rect x="154" y="118" width="9" height="9"/><rect x="165" y="118" width="9" height="9"/><rect x="176" y="118" width="9" height="9"/><rect x="187" y="118" width="9" height="9"/><rect x="198" y="118" width="9" height="9"/>
+        <rect x="132" y="129" width="9" height="9"/><rect x="143" y="129" width="9" height="9"/><rect x="154" y="129" width="9" height="9"/><rect x="165" y="129" width="9" height="9"/><rect x="176" y="129" width="9" height="9"/><rect x="187" y="129" width="9" height="9"/><rect x="198" y="129" width="9" height="9"/>
+        <rect x="132" y="140" width="9" height="9"/><rect x="143" y="140" width="9" height="9"/><rect x="154" y="140" width="9" height="9"/><rect x="165" y="140" width="9" height="9"/><rect x="176" y="140" width="9" height="9"/><rect x="187" y="140" width="9" height="9"/><rect x="198" y="140" width="9" height="9"/></g>
+        <text x="169" y="166" text-anchor="middle">13M weights</text>
+        <path class="s g d w" d="M169 14 V44"/><path class="s g w" d="M164 39 L169 44 L174 39"/>
+      </svg>
+      <figcaption><b>developmental-lm</b><span>Six attempts to make a compact genome load-bearing, against simply copying weights (the dashed arrow). Each killed by a criterion written before the run.</span><span class="when">August to September 2026</span></figcaption>
+    </figure>
+
+    <figure style="--d:1.25s">
+      <svg viewBox="0 0 220 200" role="img" aria-label="A key fanned out into many cells of which two fire, addressing a memory store; a dashed line for the dense key going straight to the store">
+        <rect class="s g w" x="16" y="88" width="14" height="14"/><rect class="s g w" x="16" y="104" width="14" height="14"/><rect class="s g w" x="16" y="120" width="14" height="14"/>
+        <text x="23" y="150" text-anchor="middle">key</text>
+        <path class="s g" d="M30 111 L94 36 M30 111 L94 52 M30 111 L94 68 M30 111 L94 84 M30 111 L94 100 M30 111 L94 116 M30 111 L94 132 M30 111 L94 148 M30 111 L94 164 M30 111 L94 180"/>
+        <rect class="s g" x="94" y="30" width="12" height="12"/><rect class="s g" x="94" y="46" width="12" height="12"/><rect class="f b" x="94" y="62" width="12" height="12"/><rect class="s g" x="94" y="78" width="12" height="12"/><rect class="s g" x="94" y="94" width="12" height="12"/><rect class="s g" x="94" y="110" width="12" height="12"/><rect class="f b" x="94" y="126" width="12" height="12"/><rect class="s g" x="94" y="142" width="12" height="12"/><rect class="s g" x="94" y="158" width="12" height="12"/><rect class="s g" x="94" y="174" width="12" height="12"/>
+        <text x="100" y="20" text-anchor="middle">k winners</text>
+        <path class="s b w" d="M106 68 L140 88 M135 83 L140 88 L134 90 M106 132 L140 112 M134 110 L140 112 L135 117"/>
+        <g class="f"><rect x="142" y="70" width="9" height="9"/><rect x="153" y="70" width="9" height="9"/><rect x="164" y="70" width="9" height="9"/><rect x="175" y="70" width="9" height="9"/><rect x="186" y="70" width="9" height="9"/><rect x="197" y="70" width="9" height="9"/>
+        <rect x="142" y="81" width="9" height="9"/><rect x="153" y="81" width="9" height="9"/><rect x="164" y="81" width="9" height="9"/><rect x="175" y="81" width="9" height="9"/><rect x="186" y="81" width="9" height="9"/><rect x="197" y="81" width="9" height="9"/>
+        <rect x="142" y="92" width="9" height="9"/><rect x="153" y="92" width="9" height="9"/><rect x="164" y="92" width="9" height="9"/><rect x="175" y="92" width="9" height="9"/><rect x="186" y="92" width="9" height="9"/><rect x="197" y="92" width="9" height="9"/>
+        <rect x="142" y="103" width="9" height="9"/><rect x="153" y="103" width="9" height="9"/><rect x="164" y="103" width="9" height="9"/><rect x="175" y="103" width="9" height="9"/><rect x="186" y="103" width="9" height="9"/><rect x="197" y="103" width="9" height="9"/>
+        <rect x="142" y="114" width="9" height="9"/><rect x="153" y="114" width="9" height="9"/><rect x="164" y="114" width="9" height="9"/><rect x="175" y="114" width="9" height="9"/><rect x="186" y="114" width="9" height="9"/><rect x="197" y="114" width="9" height="9"/>
+        <rect x="142" y="125" width="9" height="9"/><rect x="153" y="125" width="9" height="9"/><rect x="164" y="125" width="9" height="9"/><rect x="175" y="125" width="9" height="9"/><rect x="186" y="125" width="9" height="9"/><rect x="197" y="125" width="9" height="9"/></g>
+        <text x="174" y="62" text-anchor="middle">memory</text>
+        <path class="s g d" d="M30 130 L60 172 L174 172 L174 140"/><path class="s g" d="M170 145 L174 140 L178 145"/>
+      </svg>
+      <figcaption><b>FlyBrain-LLM</b><span>The fly's sparse, winner-take-all address, tested inside a trained Gated DeltaNet. Higher at all fifteen seed pairs, falsified by its own rule, and matched by three ordinary controls.</span><span class="when">September to October 2026</span></figcaption>
+    </figure>
+
+  </div>
+  <p class="note">The six that survived the standard, in the order they were built. Blue is the part under test; grey is the standard machinery around it.</p>
+</div></header>
+
+<section id="ranked"><div class="wrap sec">
+  <div class="rail"><h2>All sixteen, ranked</h2><div class="legend" id="legend"></div></div>
+  <div class="content"><div class="chart" id="rank-vis"></div></div>
+</div></section>
+
+<section id="survived"><div class="wrap sec">
+  <div class="rail"><h2>What survived</h2><p>Six programmes with a measured number, a control built to be fair, and a public repository. Left, the mechanism. Right, the measurement that decided it.</p></div>
+  <div class="content">
+
+    <article class="row" id="dpnca">
+      <div class="vis"><div class="controls"><label>layers <input type="range" id="dp-n" min="1" max="12" value="12"><output id="dp-n-out">12</output></label><label>steps per layer <input type="range" id="dp-t" min="1" max="6" value="6"><output id="dp-t-out">6</output></label></div><div class="chart" id="dp-vis"></div><div class="readout" id="dp-readout"></div></div>
+      <div class="text"><h3>DPNCA-LM</h3><div class="big num">3.512 <span class="muted">vs</span> 3.346<span class="u">validation cross-entropy in nats, against a same-size GPT-2 at the same token budget</span></div>
+      <p>Attention replaced by six steps of a causal cellular automaton. 0.083% of the parameters do all the cross-position work, so reach grows additively and stops at 433 of 1,024 tokens. 158.9M parameters, one run on 250M Pile tokens, weights released.</p>
+      <a class="repo" href="https://github.com/Peterpetu/DPNCA-LM">Code, training log and weights</a></div>
+    </article>
+
+    <article class="row" id="ncalm">
+      <div class="vis"><div class="chart" id="nc-vis"></div></div>
+      <div class="text"><h3>NCALM</h3><div class="big num">29 <span class="muted">of</span> 30<span class="u">checkpoints at which the best local-rule variant trailed the GPT-2 baseline</span></div>
+      <p>Fifteen local update rules against a GPT-2 trained in the same harness with the same tokens, tokenizer, seed and schedule. The closest variant kept four attention blocks and still lost. The ones with no attention landed 13 to 88 times behind.</p>
+      <a class="repo" href="https://github.com/Peterpetu/NCALM">Harness, baseline and every run</a></div>
+    </article>
+
+    <article class="row" id="wavelm">
+      <div class="vis"><div class="controls"><button class="btn" id="wv-step" type="button">Next step</button><button class="btn" id="wv-reset" type="button">Reset</button><span class="readout" id="wv-readout"></span></div><div class="chart" id="wv-vis"></div></div>
+      <div class="text"><h3>WaveLM</h3><div class="big num">4 <span class="muted">of</span> 4<span class="u">ladder rungs lost to a byte transformer with matched degrees of freedom</span></div>
+      <p>A complex-valued byte model that is real, at 2.30 bits per byte on The Pile, and loses at every size. Ablations say what carries it: the pointwise nonlinearity, channel mixing and depth. The wave-specific parts add little.</p>
+      <a class="repo" href="https://github.com/Peterpetu/WaveLM">Model, ladder and ablations</a></div>
+    </article>
+
+    <article class="row" id="hdclm">
+      <div class="vis"><div class="controls" style="flex-direction:column;align-items:flex-start;gap:8px"><label class="sw"><input type="checkbox" id="hd-depth" checked> credit across blocks</label><label class="sw"><input type="checkbox" id="hd-transport" checked> weight transport through the transpose</label><label class="sw"><input type="checkbox" id="hd-time" checked> explicit reverse-time sweep</label></div><div class="chart" id="hd-vis"></div></div>
+      <div class="text"><h3>HDC-LM</h3><div class="big num" id="hd-big">0.998<span class="u">two-layer recall under this rule, where BPTT reaches 1.000 and chance is 0.016</span></div>
+      <p>A backprop-free rule for a phasor linear-attention model, controlled by the identical model trained with BPTT. Drop weight transport and nothing changes. Drop the reverse-time pass and recall collapses to chance. Time, not transport, is the wall.</p>
+      <a class="repo" href="https://github.com/Peterpetu/HDC-LM">Rule, experiments and tests</a></div>
+    </article>
+
+    <article class="row" id="devlm">
+      <div class="vis"><div class="chart" id="dv-vis"></div></div>
+      <div class="text"><h3>developmental-lm</h3><div class="big num">2.86 <span class="muted">vs</span> 9.01<span class="u">cross-entropy at birth: a newborn decoded from a compact genome, against random</span></div>
+      <p>Six compact-genome programmes with kill criteria written before each run. The genomic bottleneck replicates on a 13M language model, with the embedding table exempt. Under environment shift, copying weights beats every compressed rebirth.</p>
+      <a class="repo" href="https://github.com/Peterpetu/developmental-lm">Protocols, registers and runs</a></div>
+    </article>
+
+    <article class="row" id="flybrain">
+      <div class="vis"><div class="chart" id="fb-vis"></div></div>
+      <div class="text"><h3>FlyBrain-LLM</h3><div class="big num">15 <span class="muted">of</span> 15<span class="u">seed pairs where the fly's sparse address beat Gated DeltaNet, and the verdict under the rule frozen before the run: falsified</span></div>
+      <p>Two fly-derived mechanisms, each pre-registered with a hash-locked protocol and the full control set. The sparse address removes a capacity limit, but so does any bigger store, and it is slower on a GPU. The history states' small module-level gain vanished in a trained model. No fly mechanism earned the language-model test.</p>
+      <a class="repo" href="https://github.com/Peterpetu/FlyBrain-LLM">Pre-registrations, per-run tables and verdicts</a></div>
+    </article>
+
+  </div>
+</div></section>
+
+<section id="finding"><div class="wrap sec">
+  <div class="rail"><h2>Sixteen times, the new mechanism never reached a gradient</h2><p>Implemented, wired in, logged, and structurally unable to influence learning. Not noticed at the time, in any of the sixteen. Each would have been caught by a ten-minute ablation at the smallest scale that runs.</p></div>
+  <div class="content">
+    <div class="chart" id="chain"></div>
+    <button class="btn" id="cuts-btn" type="button" aria-expanded="false" style="margin-top:18px">Show all sixteen</button>
+    <div class="cuts" id="cuts" hidden></div>
+    <div class="cutkey" id="cutkey" hidden><span><i style="background:var(--blue)"></i>never read, or behind a flag</span><span><i style="background:var(--grey)"></i>cancelled or negligible</span><span><i style="background:var(--orange)"></i>detached, zero by construction</span></div>
+    <div class="pair">
+      <div><h3>The new part owned almost none of the model, until it was made the model</h3><div class="controls" style="margin-bottom:6px"><span class="legend-inline"><i style="background:var(--grey)"></i>in the programme</span><span class="legend-inline"><i style="background:var(--blue)"></i>rebuilt as the whole model</span></div><div class="chart" id="share"></div><p>Where the mechanism reached a gradient at all, it was a sliver of the model it sat in, and the transformer around it did the work. Six of them were rebuilt with the mechanism as the load-bearing part; the next section measures what each one carries.</p></div>
+      <div><h3>Backprop-free is a spectrum, and every point lost</h3><div class="chart" id="spectrum"></div><p>Two-layer recall under each credit rule in HDC-LM, from the exact gradient to the most local. The closer to local, the worse.</p></div>
+    </div>
+  </div>
+</div></section>
+
+<section id="nullarm"><div class="wrap sec">
+  <div class="rail"><h2>The null arm, run</h2><p>Each mechanism rebuilt as the whole model and trained beside its null arm (the mechanism switched off, everything else the same) and beside the incumbent it was meant to replace. Same bytes, same budget, same held-out score. Small by design: two seeds, two CPU cores.</p><p class="small" id="lb-status"></p></div>
+  <div class="content">
+    <div class="controls" id="lb-controls"><span class="legend-inline"><i style="background:var(--blue)"></i>the mechanism as the model</span><span class="legend-inline"><i style="background:var(--orange)"></i>its null arm</span><span class="legend-inline"><i style="background:var(--grey)"></i>the incumbent</span><label class="sw" style="margin-left:auto"><input type="checkbox" id="lb-best"> at each one's best learning rate</label></div>
+    <div class="chart" id="lb-chart"></div>
+    <div class="pair" style="margin-top:28px">
+      <div><div class="chart" id="lb-budget"></div></div>
+      <div><p class="muted" style="font-size:.98rem">Every null arm sits on the bigram rung, and five of the six mechanisms sit far under it: they were inert in the programmes by wiring, not by nature. The cellular-automaton rule and the morphogen field, nearly the same model, are the only two that beat a tuned transformer at eight million bytes, and by twenty-four million the transformer has caught up. The three recurrences trail a trained GRU; the genome learns but never leaves the bigram rung.</p>
+      <button class="btn" id="lb-btn" type="button" aria-expanded="false">Show the numbers</button></div>
+    </div>
+    <div class="tbl-wrap" id="lb-tblwrap" style="margin-top:18px" hidden><table class="rank" id="lb-table" style="min-width:640px"><thead><tr><th>mechanism as the model</th><th class="n">share now</th><th class="n">mechanism</th><th class="n">null arm</th><th class="n">incumbent</th><th class="n">best rates</th><th style="min-width:140px">reading</th></tr></thead><tbody></tbody></table></div>
+  </div>
+</div></section>
+
+<section id="standard"><div class="wrap sec">
+  <div class="rail"><h2>The standard</h2><p>Every statement in every programme got one of three grades. Only the third counts, and it is the only one drawn in blue on this page.</p></div>
+  <div class="content">
+    <div class="grades">
+      <div><span class="g" style="color:var(--ink3)">Claimed</span><p>It appears in prose. A result whose log no longer exists is claimed, whatever the document says.</p></div>
+      <div><span class="g" style="color:var(--orange)">Implemented</span><p>There is code, and it runs. A mechanism that provably cannot affect the output is implemented, however often it was logged.</p></div>
+      <div><span class="g" style="color:var(--blue)">Measured</span><p>A number in a log, traceable to the run that produced it, against a baseline built to be fair.</p></div>
+    </div>
+    <div class="passes">
+      <div><div class="k">Read</div><p>57 branch refs across 17 repositories, every claim graded, fifteen facets scored. Nothing checked out, modified or built.</p></div>
+      <div><div class="k">Attack</div><p>The four claims that would have anchored the top of the ranking. All four at least partially refuted, two of them the audit's own.</p></div>
+      <div><div class="k">Draw</div><p>Each implemented architecture drawn from source, with the novel parts and the provably inert paths marked.</p></div>
+      <div><div class="k">Verify</div><p>Every drawing attacked line by line: 851 of 904 citations verified, every parameter count recomputed, two corrected.</p></div>
+    </div>
+    <div class="habit"><div class="q">Before scaling any new mechanism, ablate it at the smallest scale that runs.</div><p>I diagnosed most of these failures in writing at the time. What I did instead of ablating was start the next programme. The two programmes since the audit are built around this habit.</p></div>
+  </div>
+</div></section>
+
+<section id="repos"><div class="wrap sec">
+  <div class="rail"><h2>Repositories</h2><p>Fresh history, every number traceable to a file. The twelve audited programmes without a repository stay private: nothing in them meets the standard.</p></div>
+  <div class="content"><div class="repos" id="repo-list"></div></div>
+</div></section>
+
+<footer><div class="wrap">
+  <div>Peter Lahtinen, 2026. Code Apache 2.0, text and figures CC BY 4.0.</div>
+  <div>The long version, with the source of every number, is the README of <a href="https://github.com/Peterpetu/post-transformer-research">post-transformer-research</a>.</div>
+</div></footer>
+
+<div class="tip" id="tip" hidden></div>
+
+<script>
+const DATA = {"projects":[{"id":"dpnca","name":"DPNCA-LM","dir":"developmental","span":"2026-04-06 → 2026-04-11","start":"2026-04-06","end":"2026-04-11","family":"attention-free · neural cellular automaton","thread":"grown","what":"A 12-layer pre-norm transformer skeleton whose attention sublayer is replaced by six iterated steps of a causal 2D neural cellular automaton; the only cross-position operator is a bank of depthwise causal convolutions (0.083% of the model).","scale":"158,881,044 params · 250M Pile tokens · one 19 h run on an RTX 4080 SUPER","measured":["Full-validation CE 3.512 nats/token (ppl 33.5) on The Pile, re-measured from the released checkpoint","Same-size GPT-2 at the same token budget: CE 3.346 (ppl 28.4) — the transformer wins by 15–18%","Causality verified bit-exact; zero attention parameters (471/471 tensors match)","Receptive-field ceiling 433 of 1,024 tokens"],"baseline":"GPT-2 162M at 250M tokens from the NCALM harness (different tokenizer; not protocol-identical, but decisive)","verdict":"The only attention-free architecture in the portfolio within striking distance of a transformer. Two of its three loss terms never produced a gradient; the reported cross-entropy is cleanly separable from both. Undertrained (1.57 tokens/param) and bounded to a 433-token receptive field by construction. Rebuilt as the whole model (E1), the cellular-automaton rule carries a language model on its own, 0.13 bits/byte ahead of a two-layer transformer at each one's best learning rate; with three times the bytes the transformer catches up.","outcome":"survived","composite":4.4,"repo":"https://github.com/Peterpetu/DPNCA-LM","weights":"fp16 safetensors, 318 MB, sha256 1538dd9c…"},{"id":"ncalm","name":"NCALM","dir":"NCALM","span":"2026-02-19 → 2026-04-01","start":"2026-02-19","end":"2026-04-01","family":"attention-free · NCA variants vs a matched baseline","thread":"grown","what":"A model-agnostic training harness with a GPT-2-style baseline (Pythia-160M layout) trained at 250M and 2.0B Pile tokens, and fifteen neural-cellular-automaton variants trained under the same protocol.","scale":"41k lines · 162.3M baseline · 2.0B and 250M Pile tokens · seed 42 · one GPU","measured":["GPT-2 baseline: best val PPL 14.45 at 2.0B tokens, 27.57 at 250M","v7.1 (four attention layers + shared conv/GLU loop): 15.68 at 2.0B, behind the baseline at 29 of 30 checkpoints; last-8 mean 17.66 vs 15.16","v13 (gated transformer): 56.98 at 250M · v15 (2D NCA, no attention): 522.5 · v10 (pure NCA): 437.1 (documented only)"],"baseline":"Matched tokens, tokenizer, seed, LR, schedule, effective batch and GPU — the fairest baseline in the portfolio; two eval-protocol defects (random validation windows; larger eval batch for the baseline) both favour the challengers","verdict":"The question was sharp and the answer was no: weight-shared local update rules showed no headroom as drop-in replacements for attention at this scale. The harness and baseline are the most reusable artifact in the portfolio. Rebuilt as the whole model (E1 and E5), the shared rule and the v13 morphogen field each carry a language model on their own, 0.13 bits/byte ahead of a two-layer transformer and 0.28 ahead of a one-layer transformer at best rates.","outcome":"survived","composite":4.33,"repo":"https://github.com/Peterpetu/NCALM"},{"id":"wavelm","name":"WaveLM","dir":"active_inference_thermodynamic_computation_llm","span":"2026-05-22 → 2026-05-24","start":"2026-05-22","end":"2026-05-24","family":"complex-valued long-convolution byte model","thread":"physics","what":"A byte-level model whose state is a complex field advanced by twelve steps of dilated causal convolution, low-rank channel mixing, a radial saturating nonlinearity, phase rotation and energy normalisation, with a squared-magnitude readout. Mechanically a complex diagonal state-space model.","scale":"7.35M params on The Pile · 0.5M–7M ladder on TinyStories · 40-run ablation campaign","measured":["2.298 bits/byte on The Pile (full validation), 1.355 on TinyStories","Ladder vs a byte transformer at matched DOF: 1.528/1.448/1.364/1.324 vs 1.385/1.093/1.037/0.947 — the transformer wins at every rung","Ablations: saturation removed +0.74 bpb, mixing removed +0.49, real-valued twin +0.20, phase carrier +0.02, Born readout removed −0.03 (better)"],"baseline":"Seeded, DOF-matched byte transformer with a per-architecture LR sweep; depth not matched","verdict":"A real language model that loses to its own baseline, with a clean measurement of what drives it: the pointwise nonlinearity, channel mixing and depth. The wave-specific parts add little (the complex field 0.20 bits per byte over its real twin, the phase carrier 0.02, the readout none).","outcome":"survived","composite":4.27,"repo":"https://github.com/Peterpetu/WaveLM"},{"id":"hdclm","name":"HDC-LM","dir":"HDC_LM","span":"2026-07-15 → 2026-08-12","start":"2026-07-15","end":"2026-08-12","family":"backprop-free credit assignment · phasor linear attention","thread":"local-learning","what":"A gated linear-attention language model over complex phasors, trained without autograd by equilibrium propagation plus exact eligibility traces (RIPPLE), compared to the identical model trained by BPTT.","scale":"1.13M-param twins on TinyStories · 2-layer MQAR recall · 162M on The Pile","measured":["RIPPLE within +3.3% of its BPTT twin at matched data, seed and LR (3.59 vs 3.48 val NLL, 2 seeds); the first-reported 9% was two fixable gradient approximations","MQAR recall: BPTT 1.000 · depth-credit rule 0.998 · no weight transport 0.997 · pure-local 0.261 · no backward pass 0.012","Pile 162M: val PPL 517 vs a 28.9 anchor — the programme's ceiling"],"baseline":"The identical model under BPTT: the cleanest control in the portfolio","verdict":"Weight transport is nearly free; reverse-time credit is the wall. The backprop-free rule matched BPTT only where it reproduced BPTT's gradient, and lost everywhere it departed from it.","outcome":"survived","composite":3.87,"repo":"https://github.com/Peterpetu/HDC-LM"},{"id":"sfnn","name":"SFNN","dir":"optical_model","span":"2026-04","start":"2026-04-20","end":"2026-04-27","family":"optical-fiber language model · plan","thread":"physics","what":"A grant-proposal-grade plan to run language models on fixed nonlinear optical-fiber propagation steered by a few trainable phase modulators, simulate-first via the GNLSE.","scale":"6,749 words · 18 references (17 metadata-exact) · zero code","measured":[],"baseline":"none — unbuilt","verdict":"The strongest unbuilt idea in the portfolio: unbuilt, not disproven. Contains a dispersion sign error that would have to be fixed before the simulation is written.","outcome":"unbuilt","composite":4.07,"repo":null},{"id":"pw","name":"Mamba + DeltaNet with active-inference objectives","dir":"personal-website","span":"2026-02-02 → 2026-02-11","start":"2026-02-02","end":"2026-02-11","family":"state-space hybrid · active inference","thread":"active-inference","what":"Small Mamba-SSM + DeltaNet language models on TinyStories with predictive-coding and active-inference auxiliary objectives added in stages (V2 → V11).","scale":"57k lines · 152 runs · 191 metric files · 15–16M params","measured":["V7: val PPL 8.03 on TinyStories (GPT-2 BPE, 82M tokens) — the best honest number in the lineage","A later headline of 5.8 was a metric bug (a precision-weighted score left active at eval); the plain cross-entropy of that checkpoint is 8.69","The active-inference terms were 0.33–0.76% of the loss; learned precision converged to the predicted fixed point without changing perplexity"],"baseline":"No same-tokenizer plain baseline was trained","verdict":"The backbone did the work. Without a same-tokenizer plain baseline, the reported perplexities cannot show whether the active-inference objectives helped.","outcome":"no-fair-baseline","composite":3.93,"repo":null},{"id":"mashi","name":"APCN-LM / VTM-LM / PROTHEUS","dir":"mashi","span":"2026-03-23 → 2026-04-24","start":"2026-03-23","end":"2026-04-24","family":"predictive-coding transformer hybrid · genome→phenotype agent","thread":"active-inference","what":"Hierarchical predictive-coding cells (diagonal Kalman filters) fused with standard transformer blocks (APCN-LM, ~72% transformer); a discrete active-inference language agent whose ~332M-value phenotype is expanded from a 3.87M-parameter genome and trained by evolutionary search (VTM-LM); ten gradient-free restarts (PROTHEUS).","scale":"~90k lines · 164.75M APCN-LM on 250M Pile tokens","measured":["APCN-LM: documented PPL 28.6 at 250M Pile tokens — the run directory was not retained","Own collapse analysis: KL ≈ 0.004, Kalman gain pinned at its floor, cross-entropy carrying ≥ 93% of the gradient"],"baseline":"No transformer baseline on any branch","verdict":"The best numbers have no surviving log and no control. The predictive-coding branch collapsed to a near-no-op, and that collapse was measured carefully. Rebuilt as the whole model (E6), two-level predictive coding carries a language model on its own, 0.36 bits/byte behind a trained GRU at best rates.","outcome":"no-artifacts","composite":3.67,"repo":null},{"id":"nen","name":"NEN","dir":"antientrhopy","span":"2026-06-02 (one evening)","start":"2026-06-02","end":"2026-06-03","family":"predictive coding · NumPy","thread":"local-learning","what":"A dependency-free NumPy hierarchical predictive-coding classifier plus a reward-free contingency-tracking environment.","scale":"203,530 params · 1,929 lines","measured":["MNIST 95.31%, Fashion-MNIST 84.6% with clean disjoint splits","The inference-time relaxation contributes nothing measurable; the update is numerically identical to backprop (cosine +1.000000)"],"baseline":"Logistic regression (92.7%); the matched backprop MLP was never run","verdict":"Clean engineering, a known algorithm: an MLP trained by a hand-rolled backprop variant.","outcome":"lost-or-equivalent","composite":3.53,"repo":null},{"id":"fedn","name":"FEDN / CAIN","dir":"sampling_enthropic","span":"2026-05","start":"2026-05-10","end":"2026-05-20","family":"free-energy descent in place of layers","thread":"active-inference","what":"Byte-level TinyStories models in which K transformer layers are replaced by K steps of Langevin descent on a learned scalar free energy of a hidden field.","scale":"1.4–3.5M params","measured":["Every version lost to its matched byte-transformer baseline (v3.1: 2.502 vs 1.495 NLL) at ~2% of the compute","K = 1 → 32 descent steps moved NLL by 0.004 nats, non-monotonically"],"baseline":"Matched byte transformers for v2 / v3.1; none for CAIN","verdict":"The descent steps change the loss by 0.004 nats and are switched off at inference, leaving an MLP over byte and position embeddings.","outcome":"lost-or-equivalent","composite":3.47,"repo":null},{"id":"olento","name":"olento (EDO)","dir":"olento","span":"2026-03-04 → 2026-03-10","start":"2026-03-04","end":"2026-03-10","family":"self-modifying x86-64 organism · ternary weights as instructions","thread":"grown","what":"A freestanding static x86-64 binary (C and assembly, no libc) in which learned ternary weights are rendered as live ADD/SUB/NOP instructions and patched in place one opcode byte at a time, with correct i-cache serialisation.","scale":"8.45M params · 37.6k lines · 29 runs","measured":["Live .text self-modification verified to the opcode byte","The language model around it never beat a unigram predictor on TinyStories; coverage of the self-modifying path ≤ 0.13% of parameters"],"baseline":"unigram only","verdict":"The single most original systems artifact in the portfolio. The self-modifying path covers at most 0.13% of the weights, so learning did not run through it.","outcome":"did-not-learn","composite":3.4,"repo":null},{"id":"harm","name":"HARM-LM","dir":"new_model_2026","span":"2026-05-06 → 2026-05-12","start":"2026-05-06","end":"2026-05-12","family":"gradient-free renormalising generative model · VSA context · ridge readout","thread":"active-inference","what":"A NumPy-only byte model combining a Dirichlet renormalising generative model with variational message passing, hyperdimensional context codes and a closed-form ridge readout; later versions reverted to backprop-trained transformer blocks.","scale":"49.7k lines · 7 days","measured":["Best 4.64 bits/byte on TinyStories vs an order-0 byte-frequency floor of 4.45; later runs degraded monotonically with more data"],"baseline":"n-gram floors only","verdict":"Three gradient-free implementations, all above the byte-frequency floor; the later versions drifted back to transformer blocks.","outcome":"lost-or-equivalent","composite":3.4,"repo":null},{"id":"wave-treatise","name":"Wave-AI treatise","dir":"evolve-hierarchical_nca","span":"2026-05-19","start":"2026-05-19","end":"2026-05-19","family":"wave computation · position paper","thread":"physics","what":"A ~10,000-word treatise on wave-native computation for AI — leapfrog wave-equation dynamics, the wave↔RNN correspondence, trainability via adjoint methods — and a proposed Wave Computation Network.","scale":"9,987 words · zero code","measured":[],"baseline":"none — unbuilt","verdict":"The proposed architecture is original and untested; the document has no reference section and several derivation errors. It seeded HDC-LM two months later.","outcome":"unbuilt","composite":3.4,"repo":null},{"id":"apeiron","name":"APEIRON","dir":"principled_model","span":"2026-04-24 (one session)","start":"2026-04-24","end":"2026-04-24","family":"sparse random-graph substrate","thread":"grown","what":"A 14.1M-parameter byte model on a sparse random graph (8,192 units, 393K edges) with per-unit time constants and graph synaptogenesis/pruning, documented with pre-registered falsifiable hypotheses.","scale":"6,357 lines · 24 optimizer steps in total","measured":["All runs at or above the 8.0 bits/byte uniform floor; 89.3% of the parameters reached 0.009% of the logits"],"baseline":"none","verdict":"A message-scaling bug left the substrate contributing 0.009% of the logits, so the project's own question was never put to a test.","outcome":"did-not-learn","composite":3.13,"repo":null},{"id":"drn","name":"DRN","dir":"intelligence_cant_be_modeled_it_must_be_grown","span":"2026-02-21 → 2026-04-15","start":"2026-02-21","end":"2026-04-15","family":"genomic-bottleneck hypernetwork","thread":"grown","what":"A 160M TinyStories model whose ~136M operational weights are emitted by a 418K-parameter hypernetwork over Gray-coded index pairs, applied in a weight-tied depth-recurrence loop.","scale":"3,794 lines · 177 KB design document · 21,504 tokens ever processed","measured":["Logged cross-entropy 10.8125 at every step = ln(50257): the model was dead at initialisation (zero-initialised generator output)"],"baseline":"none","verdict":"Built and run; training never started because the generator was zero-initialised. The hypernetwork module itself is clean and reusable. Rebuilt as the whole model (E3 and E4): the genome does not carry a language model and finishes worse than its null arm; the coupled oscillators do, 0.31 bits/byte behind a trained GRU at best rates.","outcome":"did-not-learn","composite":3.07,"repo":null},{"id":"rglm","name":"RGLM lineage","dir":"themodel · old_scripts · active","span":"2024-12 → 2025-01, then 2026-02 → 2026-03","start":"2024-12-01","end":"2026-03-21","family":"renormalisation-group hierarchical LM","thread":"physics","what":"Three generations of 'renormalisation-group' language models: per-token bottleneck MLPs with a zero-parameter free-energy attention; a count-table hierarchy; a 163M weight-shared excitatory/inhibitory kernel with a three-level hierarchy.","scale":"48.9M → 163M params · no git","measured":["Trained prototypes stayed at unigram-level perplexity (CE 6.34 nats ≈ ppl 566) and no baseline comparison was run"],"baseline":"none","verdict":"Three generations; in each, the hierarchy never reached the gradient. The one genuine novelty (a VQ-VAE block-spin coarse-graining operator) was deprecated hours after it was written and never run.","outcome":"did-not-learn","composite":2.67,"repo":null,"spans":[["2024-12-01","2025-01-31"],["2026-02-01","2026-03-21"]]},{"id":"chaotic","name":"Chaotic Reservoir LM","dir":"quicktest · muse-gpt-x · muse-llm","span":"2025-07 → 2026-01-16","start":"2025-07-22","end":"2026-01-16","family":"frozen reservoir · reproduction of Liu et al. 2024","thread":"physics","what":"A 78M-parameter model with a frozen sparse 'chaotic' reservoir between a trainable input projection and a trainable output head, trained for 27 days on 8.3B tokens.","scale":"78,034,855 params · 8.3B tokens (padding counted) · 27 days on one GPU","measured":["Final training CE 5.25 nats (ppl 190.7); a power-law fit of its own curve gave an asymptote of 5.12 nats (R² 0.998)","With spectral radius 2.1 the nonlinear branch is unreachable and the sequence axis is flattened into the batch, so the trained model is a rank-512 factorisation of a bigram table — about 0.26 nats worse than a count-based bigram at matched data"],"baseline":"none trained","verdict":"As built, the reservoir added nothing beyond a rank-512 bigram table. The 27-day streaming/resume training infrastructure is the transferable part. Rebuilt as the whole model (E2), a fixed random reservoir that recurs carries a language model on its own, 0.20 bits/byte behind a trained GRU at best rates.","outcome":"did-not-learn","composite":2.4,"repo":"https://github.com/Peterpetu/Chaotic-Reservoir-Language-Model"},{"id":"evolve","name":"developmental-lm","dir":"evolve_model","span":"2026-08-29 → 2026-09-10","start":"2026-08-29","end":"2026-09-10","family":"compact genomes · development · continual learning","thread":"grown","what":"Six pre-registered attempts to make a compact genome load-bearing in a small language model (SOMA, GNOMON, ANLAGE, PALIMPSEST, SPORE, TEMPO), each with kill criteria written before the run, plus a replication of the PNAS genomic bottleneck on a 13M LM and a mechanism-screening harness.","scale":"67k lines · 207 commits in 13 days · models ≤ 78M · TinyStories","measured":["Genomic bottleneck at birth: CE 2.86 / 2.84 (2 seeds) vs null 9.01 and trained 1.86 — embeddings exempt, so 5.9× overall compression, 107× on the compressed layers","Transfer to a never-seen task family: copied weights +1.33 nats worse than a random start; the genome decode +0.007","Under environment shift, copying weights (4.08) beats every compressed rebirth (4.32–4.70); replay 1.98, generative rehearsal 2.13, EWC 3.36, LwF 3.19","SPORE, a backprop-free HDC LM: 2.41 nats at 25M tokens vs trigram 3.17 (a 13M transformer: 1.86)","GNOMON's evolved elite at 5.24 nats vs a free-weight twin of the same architecture at 3.02"],"baseline":"Matched token budgets, paired seeds, common random numbers; the FLOP-matched copy control in PALIMPSEST was not run","verdict":"Every compact-genome mechanism lost to copying weights at matched compute, and each loss was called by a criterion written before the run. Where compression does help is transfer, not stationarity.","outcome":"survived","composite":null,"note":"Not part of the August audit; reviewed independently in October 2026.","repo":"https://github.com/Peterpetu/developmental-lm"},{"id":"fly","name":"FlyBrain-LLM","dir":"FlyBrainLLM","span":"2026-09-15 → 2026-10-03","start":"2026-09-15","end":"2026-10-03","family":"connectome-derived principles for sequence memory · pre-registered","thread":"current","what":"Does the fruit-fly connectome (MaleCNS v1.0) contain computational principles that improve sequence-memory layers? Identified circuits are verified against published wiring, their principles re-implemented as differentiable modules (a sparse winner-take-all address from the mushroom body; per-address history states), and tested against tuned baselines with hash-locked pre-registrations, frozen verdict rules and the full control set.","scale":"three phases · 124 tests · 100-run and 95-run GPU grids, 5 seeds per arm, on one RTX 4080 SUPER","measured":["Module level (E1): a fixed random sparse code recalls 0.993 of 128 stored pairs where dense keys recall 0.368 at equal active rows; replicated on fresh seeds","In a trained model (rung 1b): the Kenyon-cell address recalls 0.9995 / 0.9993 / 0.9972 at 32 / 64 / 128 pairs where Gated DeltaNet with 16-d keys recalls 0.79 / 0.81 / 0.79; higher at all 15 seed pairs; verdict under the frozen rule: FALSIFIED (above two seed-spreads at one of three settings, not two)","Controls: an equal-memory dense key 1.000, product keys 0.999, a learned expansion 1.000, the expansion without sparsity 0.810: the win is capacity, not the fly's wiring; the exact sparse step is slower on the GPU (44 vs 21 ms)","History states in a trained model (rung 1): +0.016 and +0.006 over the identical model without them (0.3 seed-spreads); a single store with the same memory ahead by 0.040 and 0.094; FALSIFIED on every conjunct","Language-model test (rung 2) not run: its rules reserved it for a supported mechanism; exploratory 34M WikiText-103 runs show the memory is not what recalls far facts"],"baseline":"Gated DeltaNet at equal active rows and parameters, plus equal-compute, equal-memory, product-key and learned-expansion controls; hash-locked pre-registrations recorded in every run; code identity checked across each grid","verdict":"Two hypotheses, both falsified by rules written before the runs, with the controls saying why: the sparse address is a real capacity mechanism but neither fly-specific nor cheaper on a GPU, and the history states' small module-level gain vanished in a trained model. The standard, applied from day one.","outcome":"survived","composite":null,"note":"After the audit; not scored. Reviewed in October 2026: every headline number recomputes from the per-run tables, and the pre-registration hash in every run matches the locked file.","repo":"https://github.com/Peterpetu/FlyBrain-LLM"}],"scores":{"dpnca":{"project":"developmental","codename":"DPNCA-LM","N1_mechanism_originality":4.0,"N2_distance_from_prior_art":5.0,"N3_framing_synthesis":6.0,"P4_measured_result_quality":6.0,"P5_scale_reached":8.0,"P6_baseline_fairness":3.0,"T7_headroom":4.0,"T8_scalability_path":4.0,"T9_blocker_severity_inverted":3.0,"A10_publishability":3.0,"A11_theoretical_depth":5.0,"A12_reproducibility":4.0,"X13_implementation_maturity":6.0,"X14_efficiency_hardware":3.0,"X15_deployability":2.0,"composite":4.4,"novelty":5.0,"performance":5.67,"potential":3.67,"academic":4.0,"tech":3.67},"ncalm":{"project":"NCALM","codename":"AENCA","N1_mechanism_originality":5.0,"N2_distance_from_prior_art":4.0,"N3_framing_synthesis":8.0,"P4_measured_result_quality":3.0,"P5_scale_reached":5.0,"P6_baseline_fairness":8.0,"T7_headroom":4.0,"T8_scalability_path":3.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":3.0,"A11_theoretical_depth":6.0,"A12_reproducibility":3.0,"X13_implementation_maturity":7.0,"X14_efficiency_hardware":2.0,"X15_deployability":2.0,"composite":4.33,"novelty":5.67,"performance":5.33,"potential":3.0,"academic":4.0,"tech":3.67},"wavelm":{"project":"active_inference_thermodynamic_computation_llm","codename":"WaveLM","N1_mechanism_originality":4.0,"N2_distance_from_prior_art":3.0,"N3_framing_synthesis":7.0,"P4_measured_result_quality":6.0,"P5_scale_reached":3.0,"P6_baseline_fairness":6.0,"T7_headroom":3.0,"T8_scalability_path":2.0,"T9_blocker_severity_inverted":3.0,"A10_publishability":4.0,"A11_theoretical_depth":5.0,"A12_reproducibility":5.0,"X13_implementation_maturity":7.0,"X14_efficiency_hardware":3.0,"X15_deployability":3.0,"composite":4.27,"novelty":4.67,"performance":5.0,"potential":2.67,"academic":4.67,"tech":4.33},"sfnn":{"project":"optical_model","codename":"SFNN","N1_mechanism_originality":5.0,"N2_distance_from_prior_art":4.0,"N3_framing_synthesis":8.0,"P4_measured_result_quality":1.0,"P5_scale_reached":1.0,"P6_baseline_fairness":1.0,"T7_headroom":7.0,"T8_scalability_path":4.0,"T9_blocker_severity_inverted":5.0,"A10_publishability":3.0,"A11_theoretical_depth":4.0,"A12_reproducibility":6.0,"X13_implementation_maturity":1.0,"X14_efficiency_hardware":9.0,"X15_deployability":2.0,"composite":4.07,"novelty":5.67,"performance":1.0,"potential":5.33,"academic":4.33,"tech":4.0},"pw":{"project":"personal-website","codename":"V7 / V10.1 Mamba+DeltaNet","N1_mechanism_originality":4.0,"N2_distance_from_prior_art":3.0,"N3_framing_synthesis":5.0,"P4_measured_result_quality":3.0,"P5_scale_reached":3.0,"P6_baseline_fairness":2.0,"T7_headroom":6.0,"T8_scalability_path":4.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":2.0,"A11_theoretical_depth":7.0,"A12_reproducibility":6.0,"X13_implementation_maturity":6.0,"X14_efficiency_hardware":2.0,"X15_deployability":4.0,"composite":3.93,"novelty":4.0,"performance":2.67,"potential":4.0,"academic":5.0,"tech":4.0},"hdclm":{"project":"HDC_LM","codename":"WNN / RIPPLE / EMBER","N1_mechanism_originality":4.0,"N2_distance_from_prior_art":3.0,"N3_framing_synthesis":8.0,"P4_measured_result_quality":3.0,"P5_scale_reached":2.0,"P6_baseline_fairness":6.0,"T7_headroom":4.0,"T8_scalability_path":2.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":3.0,"A11_theoretical_depth":7.0,"A12_reproducibility":2.0,"X13_implementation_maturity":7.0,"X14_efficiency_hardware":3.0,"X15_deployability":2.0,"composite":3.87,"novelty":5.0,"performance":3.67,"potential":2.67,"academic":4.0,"tech":4.0},"mashi":{"project":"mashi","codename":"PROTHEUS / VTM-LM / APCN-LM","N1_mechanism_originality":5.0,"N2_distance_from_prior_art":4.0,"N3_framing_synthesis":7.0,"P4_measured_result_quality":3.0,"P5_scale_reached":4.0,"P6_baseline_fairness":1.0,"T7_headroom":5.0,"T8_scalability_path":3.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":2.0,"A11_theoretical_depth":7.0,"A12_reproducibility":4.0,"X13_implementation_maturity":5.0,"X14_efficiency_hardware":2.0,"X15_deployability":1.0,"composite":3.67,"novelty":5.33,"performance":2.67,"potential":3.33,"academic":4.33,"tech":2.67},"nen":{"project":"antientrhopy","codename":"NEN","N1_mechanism_originality":2.0,"N2_distance_from_prior_art":2.0,"N3_framing_synthesis":6.0,"P4_measured_result_quality":4.0,"P5_scale_reached":4.0,"P6_baseline_fairness":2.0,"T7_headroom":2.0,"T8_scalability_path":3.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":1.0,"A11_theoretical_depth":5.0,"A12_reproducibility":6.0,"X13_implementation_maturity":6.0,"X14_efficiency_hardware":4.0,"X15_deployability":4.0,"composite":3.53,"novelty":3.33,"performance":3.33,"potential":2.33,"academic":4.0,"tech":4.67},"fedn":{"project":"sampling_enthropic","codename":"FEDN / CAIN","N1_mechanism_originality":4.0,"N2_distance_from_prior_art":3.0,"N3_framing_synthesis":5.0,"P4_measured_result_quality":3.0,"P5_scale_reached":2.0,"P6_baseline_fairness":4.0,"T7_headroom":5.0,"T8_scalability_path":3.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":2.0,"A11_theoretical_depth":6.0,"A12_reproducibility":5.0,"X13_implementation_maturity":5.0,"X14_efficiency_hardware":2.0,"X15_deployability":1.0,"composite":3.47,"novelty":4.0,"performance":3.0,"potential":3.33,"academic":4.33,"tech":2.67},"olento":{"project":"olento","codename":"EDO","N1_mechanism_originality":4.0,"N2_distance_from_prior_art":3.0,"N3_framing_synthesis":5.0,"P4_measured_result_quality":2.0,"P5_scale_reached":3.0,"P6_baseline_fairness":2.0,"T7_headroom":7.0,"T8_scalability_path":3.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":2.0,"A11_theoretical_depth":5.0,"A12_reproducibility":4.0,"X13_implementation_maturity":2.0,"X14_efficiency_hardware":5.0,"X15_deployability":2.0,"composite":3.4,"novelty":4.0,"performance":2.33,"potential":4.0,"academic":3.67,"tech":3.0},"harm":{"project":"new_model_2026","codename":"HARM-LM","N1_mechanism_originality":4.0,"N2_distance_from_prior_art":3.0,"N3_framing_synthesis":7.0,"P4_measured_result_quality":2.0,"P5_scale_reached":3.0,"P6_baseline_fairness":2.0,"T7_headroom":5.0,"T8_scalability_path":3.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":2.0,"A11_theoretical_depth":6.0,"A12_reproducibility":4.0,"X13_implementation_maturity":4.0,"X14_efficiency_hardware":2.0,"X15_deployability":2.0,"composite":3.4,"novelty":4.67,"performance":2.33,"potential":3.33,"academic":4.0,"tech":2.67},"wave-treatise":{"project":"evolve-hierarchical_nca","codename":"Wave treatise","N1_mechanism_originality":3.0,"N2_distance_from_prior_art":3.0,"N3_framing_synthesis":6.0,"P4_measured_result_quality":1.0,"P5_scale_reached":1.0,"P6_baseline_fairness":1.0,"T7_headroom":6.0,"T8_scalability_path":4.0,"T9_blocker_severity_inverted":5.0,"A10_publishability":2.0,"A11_theoretical_depth":4.0,"A12_reproducibility":5.0,"X13_implementation_maturity":1.0,"X14_efficiency_hardware":8.0,"X15_deployability":1.0,"composite":3.4,"novelty":4.0,"performance":1.0,"potential":5.0,"academic":3.67,"tech":3.33},"apeiron":{"project":"principled_model","codename":"APEIRON","N1_mechanism_originality":4.0,"N2_distance_from_prior_art":3.0,"N3_framing_synthesis":6.0,"P4_measured_result_quality":2.0,"P5_scale_reached":2.0,"P6_baseline_fairness":1.0,"T7_headroom":5.0,"T8_scalability_path":2.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":1.0,"A11_theoretical_depth":5.0,"A12_reproducibility":7.0,"X13_implementation_maturity":5.0,"X14_efficiency_hardware":1.0,"X15_deployability":1.0,"composite":3.13,"novelty":4.33,"performance":1.67,"potential":3.0,"academic":4.33,"tech":2.33},"drn":{"project":"intelligence_cant_be_modeled_it_must_be_grown","codename":"DRN","N1_mechanism_originality":4.0,"N2_distance_from_prior_art":3.0,"N3_framing_synthesis":6.0,"P4_measured_result_quality":1.0,"P5_scale_reached":1.0,"P6_baseline_fairness":1.0,"T7_headroom":6.0,"T8_scalability_path":3.0,"T9_blocker_severity_inverted":3.0,"A10_publishability":1.0,"A11_theoretical_depth":5.0,"A12_reproducibility":5.0,"X13_implementation_maturity":4.0,"X14_efficiency_hardware":2.0,"X15_deployability":1.0,"composite":3.07,"novelty":4.33,"performance":1.0,"potential":4.0,"academic":3.67,"tech":2.33},"rglm":{"project":"rglm_lineage","codename":"H-RGLM / AIPIN","N1_mechanism_originality":3.0,"N2_distance_from_prior_art":2.0,"N3_framing_synthesis":6.0,"P4_measured_result_quality":2.0,"P5_scale_reached":2.0,"P6_baseline_fairness":1.0,"T7_headroom":4.0,"T8_scalability_path":2.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":1.0,"A11_theoretical_depth":5.0,"A12_reproducibility":3.0,"X13_implementation_maturity":4.0,"X14_efficiency_hardware":2.0,"X15_deployability":1.0,"composite":2.67,"novelty":3.67,"performance":1.67,"potential":2.67,"academic":3.0,"tech":2.33},"chaotic":{"project":"chaotic_lineage","codename":"MuSE / Chaotic Reservoir LM","N1_mechanism_originality":2.0,"N2_distance_from_prior_art":2.0,"N3_framing_synthesis":3.0,"P4_measured_result_quality":2.0,"P5_scale_reached":5.0,"P6_baseline_fairness":1.0,"T7_headroom":2.0,"T8_scalability_path":2.0,"T9_blocker_severity_inverted":2.0,"A10_publishability":1.0,"A11_theoretical_depth":3.0,"A12_reproducibility":3.0,"X13_implementation_maturity":4.0,"X14_efficiency_hardware":3.0,"X15_deployability":1.0,"composite":2.4,"novelty":2.33,"performance":2.67,"potential":2.0,"academic":2.33,"tech":2.67}},"inert":[{"programme":"RGLM","mechanism":"logit adjustment from the hierarchy","how":"a scalar broadcast across the vocabulary axis, which the softmax cancels","cut":"noop"},{"programme":"RGLM","mechanism":"the second-level hierarchy","how":"computed and normalised, never read by anything downstream","cut":"flag"},{"programme":"RGLM","mechanism":"inter-level messages","how":"detached from the graph, so they enter as constants","cut":"detached"},{"programme":"DRN","mechanism":"Kuramoto “resonance”","how":"detached and converted to a scalar; gradient exactly zero","cut":"detached"},{"programme":"DPNCA-LM","mechanism":"the two routing regularisers","how":"computed from routing weights detached before accumulation","cut":"detached"},{"programme":"DPNCA-LM","mechanism":"running statistics over NCA steps 3–5","how":"reset after step 2 and never consumed; half the statistics computation per layer is dead","cut":"flag"},{"programme":"NEN","mechanism":"free-energy relaxation","how":"the initialisation sets every prediction error to its minimum, so the thirty-step relaxation has nothing to do after its first step","cut":"noop"},{"programme":"FEDN","mechanism":"free-energy descent","how":"1 and 32 descent steps differ by 0.004 nats; the descent is switched off at inference","cut":"negligible"},{"programme":"FEDN","mechanism":"the criticality term","how":"its running statistic is only ever written into a buffer under no-grad, which makes the term an additive constant","cut":"detached"},{"programme":"Mamba+DeltaNet","mechanism":"expected free energy","how":"0.33–0.76% of the loss; the phases that compute it are 0.2% of the compute and their gradients are detached","cut":"detached"},{"programme":"HARM-LM","mechanism":"expected free energy","how":"about 10⁻⁵ nats of a loss near 8","cut":"negligible"},{"programme":"HARM-LM","mechanism":"the product-of-experts fusion gate, the one novel joint","how":"an attribute guard that never matches, so the gate stays at its warm-start value in every run while the log reports it as refined","cut":"flag"},{"programme":"HARM-LM","mechanism":"the quantile head’s state","how":"updated on every training byte, never read, absent from the checkpoint","cut":"flag"},{"programme":"NCALM v14","mechanism":"the lag coupling between NCA steps","how":"the model’s own Jacobian: self-weight 0.997, lag ≥ 3 exactly zero","cut":"negligible"},{"programme":"APEIRON","mechanism":"the entire graph substrate","how":"an unnormalised message product leaves 89.3% of the parameters reaching 0.009% of the logits; the output at zero hidden state is a constant vector","cut":"negligible"},{"programme":"APCN-LM / PROTHEUS","mechanism":"the expected-free-energy step","how":"behind a flag that the competitive configuration sets to false","cut":"flag"}],"share":[{"label":"Chaotic Reservoir LM — chaos gate","pct":2.68e-05},{"label":"DRN — Kuramoto ‘resonance’","pct":0.0016},{"label":"DPNCA-LM — all cross-position mixing","pct":0.083},{"label":"olento — opcode-patched weights","pct":0.127},{"label":"Chaotic Reservoir LM — reservoir W_res","pct":0.202},{"label":"DRN — genome (weight generator)","pct":0.2605},{"label":"NCALM v13 — morphogen field","pct":0.39},{"label":"NCALM v7.1 — non-transformer part","pct":7.7},{"label":"APCN-LM — non-transformer part","pct":30.0}],"dpnca_eval":[{"step":250,"tokens":8192000,"val_ce":5.4955},{"step":500,"tokens":16384000,"val_ce":4.7138},{"step":750,"tokens":24576000,"val_ce":4.5247},{"step":1000,"tokens":32768000,"val_ce":4.2912},{"step":1250,"tokens":40960000,"val_ce":4.1159},{"step":1500,"tokens":49152000,"val_ce":3.7549},{"step":1750,"tokens":57344000,"val_ce":4.0253},{"step":2000,"tokens":65536000,"val_ce":4.0076},{"step":2250,"tokens":73728000,"val_ce":4.1006},{"step":2500,"tokens":81920000,"val_ce":3.713},{"step":2750,"tokens":90112000,"val_ce":3.7406},{"step":3000,"tokens":98304000,"val_ce":3.7237},{"step":3250,"tokens":106496000,"val_ce":3.5907},{"step":3500,"tokens":114688000,"val_ce":3.6886},{"step":3750,"tokens":122880000,"val_ce":3.7771},{"step":4000,"tokens":131072000,"val_ce":3.6068},{"step":4250,"tokens":139264000,"val_ce":3.544},{"step":4500,"tokens":147456000,"val_ce":3.4946},{"step":4750,"tokens":155648000,"val_ce":3.5617},{"step":5000,"tokens":163840000,"val_ce":3.3431},{"step":5250,"tokens":172032000,"val_ce":3.5431},{"step":5500,"tokens":180224000,"val_ce":3.5014},{"step":5750,"tokens":188416000,"val_ce":3.4739},{"step":6000,"tokens":196608000,"val_ce":3.4642},{"step":6250,"tokens":204800000,"val_ce":3.3566},{"step":6500,"tokens":212992000,"val_ce":3.6064},{"step":6750,"tokens":221184000,"val_ce":3.411},{"step":7000,"tokens":229376000,"val_ce":3.5551},{"step":7250,"tokens":237568000,"val_ce":3.5424},{"step":7500,"tokens":245760000,"val_ce":3.318}],"dpnca_full_val_ce":3.512,"dpnca_gpt2_ce":3.346,"ncalm_2b":{"gpt2":[{"step":1000,"val_ppl":154.424},{"step":2000,"val_ppl":43.296},{"step":3000,"val_ppl":30.972},{"step":4000,"val_ppl":27.257},{"step":5000,"val_ppl":25.645},{"step":6000,"val_ppl":23.714},{"step":7000,"val_ppl":21.816},{"step":8000,"val_ppl":20.79},{"step":9000,"val_ppl":20.687},{"step":10000,"val_ppl":19.838},{"step":11000,"val_ppl":20.376},{"step":12000,"val_ppl":18.182},{"step":13000,"val_ppl":17.257},{"step":14000,"val_ppl":17.634},{"step":15000,"val_ppl":17.462},{"step":16000,"val_ppl":16.196},{"step":17000,"val_ppl":15.993},{"step":18000,"val_ppl":17.917},{"step":19000,"val_ppl":16.412},{"step":20000,"val_ppl":15.772},{"step":21000,"val_ppl":16.719},{"step":22000,"val_ppl":15.956},{"step":23000,"val_ppl":15.523},{"step":24000,"val_ppl":15.612},{"step":25000,"val_ppl":14.77},{"step":26000,"val_ppl":15.365},{"step":27000,"val_ppl":15.034},{"step":28000,"val_ppl":14.965},{"step":29000,"val_ppl":15.571},{"step":30000,"val_ppl":14.454}],"v7_1":[{"step":1000,"val_ppl":283.587},{"step":2000,"val_ppl":76.814},{"step":3000,"val_ppl":45.36},{"step":4000,"val_ppl":38.992},{"step":5000,"val_ppl":33.03},{"step":6000,"val_ppl":32.52},{"step":7000,"val_ppl":27.701},{"step":8000,"val_ppl":27.814},{"step":9000,"val_ppl":21.185},{"step":10000,"val_ppl":26.065},{"step":11000,"val_ppl":23.403},{"step":12000,"val_ppl":21.184},{"step":13000,"val_ppl":20.963},{"step":14000,"val_ppl":23.02},{"step":15000,"val_ppl":23.21},{"step":16000,"val_ppl":20.833},{"step":17000,"val_ppl":20.144},{"step":18000,"val_ppl":16.922},{"step":19000,"val_ppl":17.947},{"step":20000,"val_ppl":19.344},{"step":21000,"val_ppl":19.462},{"step":22000,"val_ppl":19.282},{"step":23000,"val_ppl":16.934},{"step":24000,"val_ppl":18.381},{"step":25000,"val_ppl":18.651},{"step":26000,"val_ppl":17.703},{"step":27000,"val_ppl":15.68},{"step":28000,"val_ppl":18.618},{"step":29000,"val_ppl":18.005},{"step":30000,"val_ppl":17.329}]},"ncalm_250m":{"gpt2":[{"step":200,"val_ppl":481.648},{"step":400,"val_ppl":234.619},{"step":600,"val_ppl":129.864},{"step":800,"val_ppl":81.08},{"step":1000,"val_ppl":66.495},{"step":1200,"val_ppl":53.066},{"step":1400,"val_ppl":44.779},{"step":1600,"val_ppl":41.8},{"step":1800,"val_ppl":39.238},{"step":2000,"val_ppl":39.185},{"step":2200,"val_ppl":36.345},{"step":2400,"val_ppl":33.082},{"step":2600,"val_ppl":33.29},{"step":2800,"val_ppl":33.893},{"step":3000,"val_ppl":28.961},{"step":3200,"val_ppl":29.55},{"step":3400,"val_ppl":27.566},{"step":3600,"val_ppl":31.349},{"step":3800,"val_ppl":27.656}],"v13":[{"step":400,"val_ppl":567.175},{"step":600,"val_ppl":382.476},{"step":800,"val_ppl":259.758},{"step":1000,"val_ppl":203.261},{"step":1200,"val_ppl":147.298},{"step":1400,"val_ppl":122.533},{"step":1600,"val_ppl":105.42},{"step":1800,"val_ppl":94.223},{"step":2000,"val_ppl":90.695},{"step":2200,"val_ppl":68.954},{"step":2400,"val_ppl":72.755},{"step":2600,"val_ppl":68.691},{"step":2800,"val_ppl":67.068},{"step":3000,"val_ppl":64.378},{"step":3200,"val_ppl":56.984},{"step":3400,"val_ppl":59.365},{"step":3600,"val_ppl":62.559},{"step":3800,"val_ppl":57.878}],"v15":[{"step":200,"val_ppl":2886.489},{"step":400,"val_ppl":2408.743},{"step":600,"val_ppl":1749.446},{"step":800,"val_ppl":1363.279},{"step":1000,"val_ppl":1207.985},{"step":1200,"val_ppl":949.748},{"step":1400,"val_ppl":887.894},{"step":1600,"val_ppl":725.451},{"step":1800,"val_ppl":717.975},{"step":2000,"val_ppl":616.367},{"step":2200,"val_ppl":565.493},{"step":2400,"val_ppl":522.488},{"step":2600,"val_ppl":566.686},{"step":2800,"val_ppl":554.149},{"step":3000,"val_ppl":611.752},{"step":3200,"val_ppl":629.055},{"step":3400,"val_ppl":554.339},{"step":3600,"val_ppl":569.026},{"step":3800,"val_ppl":614.73}]},"ncalm_250m_best":[{"name":"GPT-2 baseline","ppl":27.57,"archived":true,"attention":"12 blocks"},{"name":"v13 gated transformer + morphogen field","ppl":56.98,"archived":true,"attention":"yes"},{"name":"v10 one shared rule × 64, no attention","ppl":437.1,"archived":false,"attention":"none"},{"name":"v15 2D reaction–diffusion NCA, no attention","ppl":522.5,"archived":true,"attention":"none"},{"name":"v9 / v11 / v12 attention-free 1D substrates","ppl_lo":369,"ppl_hi":2425,"archived":false,"attention":"none"}],"wavelm_ladder":[{"arch":"wavelm","params":519907,"bpb":1.5277,"lr":0.001},{"arch":"gpt","params":492672,"bpb":1.3851,"lr":0.003},{"arch":"wavelm","params":1116835,"bpb":1.448,"lr":0.001},{"arch":"gpt","params":1215744,"bpb":1.0927,"lr":0.003},{"arch":"wavelm","params":2974243,"bpb":1.3643,"lr":0.001},{"arch":"gpt","params":2989824,"bpb":1.0372,"lr":0.003},{"arch":"wavelm","params":6827043,"bpb":1.3237,"lr":0.001},{"arch":"gpt","params":7139712,"bpb":0.9466,"lr":0.003}],"wavelm_ablation":[{"name":"remove saturating nonlinearity","delta":0.737},{"name":"remove channel mixing","delta":0.491},{"name":"depth 12 → 4 internal steps","delta":0.1},{"name":"real-valued twin (no complex field)","delta":0.196},{"name":"remove phase carrier","delta":0.019},{"name":"remove Born-rule readout","delta":-0.029},{"name":"untie conv kernel across steps","delta":-0.08}],"wavelm_pile_bpb":2.298,"hdc_mqar":[{"id":"bptt","label":"BPTT (reference)","recall":1.0},{"id":"l1","label":"L1: depth credit, exact key path, explicit reverse sweep","recall":0.998},{"id":"l1fa","label":"L1-FA: fixed random feedback instead of the weight transpose","recall":0.997},{"id":"l1vf_acyclic","label":"L1-VF acyclic","recall":0.995},{"id":"l0","label":"L0: pure local, no inter-block credit","recall":0.261},{"id":"l1vf_cyclic","label":"L1-VF cyclic: joint space-time relaxation, no backward sweep","recall":0.012}],"hdc_twin":{"ripple":3.592,"bptt":3.476,"gap_pct":3.3,"first_reported":{"ripple":3.779,"bptt":3.468,"gap_pct":9.0}},"hdc_pile":{"ripple_ppl":517.2,"anchor_ppl":28.9},"dev":{"birth":[{"name":"null (random logits)","ce":9.011},{"name":"newborn, seed 0","ce":2.863},{"name":"newborn, seed 1","ce":2.836},{"name":"trained adult","ce":1.857}],"transfer":[{"name":"copy from free-trained source","delta":1.328},{"name":"copy from bottleneck-trained source","delta":0.006},{"name":"decode from bottleneck-trained genome","delta":0.007}],"shift":[{"name":"copy weights","ce":4.079},{"name":"sieve c2","ce":4.317},{"name":"sieve c8","ce":4.488},{"name":"sieve c4","ce":4.569},{"name":"sieve c16","ce":4.703},{"name":"from scratch","ce":4.737}],"rehearsal":[{"name":"replay (kept data)","ce":1.981},{"name":"generative rehearsal","ce":2.125},{"name":"LwF","ce":3.189},{"name":"EWC","ce":3.358}],"spore":[{"name":"trigram","ce":3.168},{"name":"SPORE (backprop-free HDC LM)","ce":2.408},{"name":"13M transformer","ce":1.857}]},"fly_rung1b":{"P128":[{"id":"sparse","label":"Kenyon-cell sparse address","acc":0.9972,"sd":0.0022,"role":"hypothesis"},{"id":"dense","label":"Gated DeltaNet, 16-d keys","acc":0.7891,"sd":0.0339,"role":"baseline"},{"id":"dense_c","label":"dense key, equal compute","acc":0.9422,"sd":0.0258,"role":"control"},{"id":"dense_wide","label":"dense key, equal memory","acc":1.0,"sd":0.0,"role":"control"},{"id":"product","label":"product keys","acc":0.999,"sd":0.002,"role":"control"}],"P64_extra":[{"id":"sparse_learned","label":"learned expansion (64 pairs)","acc":1.0,"sd":0.0,"role":"control"},{"id":"expand_dense","label":"expansion, no sparsity (64 pairs)","acc":0.8103,"sd":0.0595,"role":"control"}],"seed_pairs_won":15,"seed_pairs_total":15,"verdict":"FALSIFIED","chance":0.015625},"fly_rung1":{"state_minus_free":[0.0162,0.0059],"single_wide_minus_state":[0.0399,0.0935],"verdict":"FALSIFIED"},"loadbearing":{"floors":{"eval_bytes":262144,"smoothing":"Witten-Bell interpolation","at_budget":{"6000000":{"unigram":4.390338004280385,"bigram":3.318003164181081,"trigram":2.399856674105256,"4-gram":1.8250366768908042,"5-gram":1.546986570324024,"train_bytes":6000000},"8000000":{"unigram":4.389808725228226,"bigram":3.316889384108963,"trigram":2.397296718008632,"4-gram":1.8195339302562967,"5-gram":1.5374041941303025,"train_bytes":8000000},"24000000":{"unigram":4.38693001547229,"bigram":3.3127374961456653,"trigram":2.3887047252914275,"4-gram":1.805225624311324,"5-gram":1.5155571974672348,"train_bytes":24000000}},"full_slice":{"unigram":4.387337157071171,"bigram":3.313605223294011,"trigram":2.3899258082422223,"4-gram":1.8052767860534182,"5-gram":1.5126357978122487,"train_bytes":60000000}},"experiments":{"e1_nca":{"title":"E1. A language model that is nothing but a cellular automaton","lineage":"DPNCA-LM, NCALM","old_share":"0.083% (DPNCA-LM's cross-position mixing)","crosses":"the rule's depthwise perception (kernels 3, 5, 7), iterated","budget_bytes":8000000,"ctx":256,"floors":{"unigram":4.389808725228226,"bigram":3.316889384108963,"trigram":2.397296718008632,"4-gram":1.8195339302562967,"5-gram":1.5374041941303025,"train_bytes":8000000},"arms":{"nca_shared6":{"bpb":1.4317012568491854,"sd":0.0017129124426287742,"values":[1.4304900448454236,1.4329124688529469],"seeds":[0,1],"role":"one rule, iterated 6 times, weights shared (the mechanism)","trainable_params":199814,"share":0.6707337824176484,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"below the 5-gram floor (1.54)","curve":[1.6966539639607117,1.5373060346669127,1.4606382595763723,1.4304900448454236]},"nca_shared1":{"bpb":1.6110332396440854,"sd":0.004629422833703142,"values":[1.607759743365394,1.6143067359227767],"seeds":[0,1],"role":"the rule applied once","trainable_params":199809,"share":0.6707255428934633,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the 4-gram (1.82) and 5-gram (1.54) floors","curve":[1.83215824541118,1.6897206983694912,1.6313698333943951,1.607759743365394]},"nca_unshared6":{"bpb":1.2663820415473093,"sd":0.0005077867673186024,"values":[1.266741101013877,1.2660229820807414],"seeds":[0,1],"role":"6 separate rules: a plain causal CNN","trainable_params":869894,"share":0.9243677965361297,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"below the 5-gram floor (1.54)","curve":[1.5443299404895958,1.3839634063248571,1.3010900296133545,1.266741101013877]},"nca_local6":{"bpb":3.3174768430528725,"sd":0.00031801040802622004,"values":[3.3172519757368693,3.3177017103688757],"seeds":[0,1],"role":"perception reduced to the centre tap: nothing crosses positions (the null arm)","trainable_params":199814,"share":0.6707337824176484,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the unigram (4.39) and bigram (3.32) floors","curve":[3.3341453370810017,3.3250884942104215,3.321733349168233,3.3172519757368693]},"transformer":{"bpb":1.8336048344832498,"sd":0.03527680943526084,"values":[1.8585493056535483,1.8086603633129512],"seeds":[0,1],"role":"2-layer transformer, d = 128 (the incumbent)","trainable_params":495360,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the trigram (2.40) and 4-gram (1.82) floors","curve":[2.8942339133864983,2.1725781892827545,1.9337983367380853,1.8585493056535483]},"transformer_s":{"bpb":2.3030865467083093,"sd":0.0072946601587129765,"values":[2.3082446503729863,2.2979284430436318],"seeds":[0,1],"role":"1-layer transformer, d = 96 (a smaller incumbent)","trainable_params":186016,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the trigram (2.40) and 4-gram (1.82) floors","curve":[3.221892260862847,2.5817763062512373,2.3964815962723693,2.3082446503729863]}},"lr_check":{"nca_shared6":{"0.001":1.5422113614560267,"0.004":1.3851461578871298,"0.008":1.365773903106955,"0.016":1.3742684863217443,"0.002":1.4304900448454236},"transformer":{"0.001":2.4212625011927815,"0.004":1.575696233094196,"0.008":1.4949766864852316,"0.016":1.5047492620296667,"0.032":1.5420270712967115,"0.002":1.8585493056535483},"transformer_s":{"0.001":2.911457481420287,"0.004":1.8929711387736183,"0.008":1.6759910116325585,"0.016":1.6136539220268484,"0.032":1.6303600910044325,"0.002":2.3082446503729863}},"budget_check":{"nca_shared6":{"lr":0.008,"main_budget":1.365773903106955,"24m":1.2788279825974789},"transformer":{"lr":0.008,"main_budget":1.4949766864852316,"24m":1.235225145881821}},"mechanism":"nca_shared6","null":"nca_local6","incumbent":"transformer","tuned":{"nca_shared6":["0.008",1.365773903106955],"transformer":["0.008",1.4949766864852316],"transformer_s":["0.016",1.6136539220268484]},"mechanism_vs_null":1.8857755862036871,"mechanism_vs_incumbent":-0.4019035776340645,"mechanism_vs_incumbent_tuned":-0.12920278337827673,"reading":"carries the model, 0.13 bits/byte ahead of the incumbent at each one's best learning rate","level":"below the 5-gram floor (1.54)","reading_short":"carries the model, 0.13 ahead of the incumbent at best rates"},"e2_reservoir":{"title":"E2. A fixed random reservoir as the only sequence operator","lineage":"Chaotic Reservoir LM","old_share":"0.202% of parameters, 0% of trainable ones (the reservoir)","crosses":"the fixed reservoir matrix W_res, recurring over positions","budget_bytes":6000000,"ctx":64,"floors":{"unigram":4.390338004280385,"bigram":3.318003164181081,"trigram":2.399856674105256,"4-gram":1.8250366768908042,"5-gram":1.546986570324024,"train_bytes":6000000},"arms":{"reservoir_r0.9":{"bpb":1.8893586216944136,"sd":0.009066371084049379,"values":[1.8829477292201287,1.8957695141686985],"seeds":[0,1],"role":"fixed random reservoir, spectral radius 0.9 (the mechanism)","trainable_params":197120,"share":0.24951267056530213,"fixed_mechanism_params":65536,"seeds_disagree":false,"level":"between the trigram (2.40) and 4-gram (1.83) floors","curve":[2.121402437814426,1.9765323627844757,1.9077409631468245,1.8829477292201287]},"reservoir_r2.1":{"bpb":1.7273848626308559,"sd":0.004961142880196524,"values":[1.7238768048578335,1.730892920403878],"seeds":[0,1],"role":"spectral radius 2.1, the original project's setting","trainable_params":197120,"share":0.24951267056530213,"fixed_mechanism_params":65536,"seeds_disagree":false,"level":"between the 4-gram (1.83) and 5-gram (1.55) floors","curve":[2.0246078233141342,1.8127516155986638,1.7500705580039995,1.7238768048578335]},"reservoir_r0":{"bpb":3.31687202575268,"sd":3.805255993752801e-05,"values":[3.316898932975853,3.3168451185295065],"seeds":[0,1],"role":"no recurrence: h_t = tanh(u_t) (the null arm)","trainable_params":197120,"share":0.24951267056530213,"fixed_mechanism_params":65536,"seeds_disagree":false,"level":"between the bigram (3.32) and trigram (2.40) floors","curve":[3.335152349246382,3.325296673834833,3.3210691629195166,3.316898932975853]},"gru":{"bpb":1.5627315453425181,"sd":0.005367620834690702,"values":[1.566527026433566,1.55893606425147],"seeds":[0,1],"role":"a trained GRU with the same state size (the incumbent)","trainable_params":395008,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the 4-gram (1.83) and 5-gram (1.55) floors","curve":[1.879709196476912,1.6650182067889565,1.5928737608349033,1.566527026433566]}},"lr_check":{"gru":{"0.001":1.685750720724926,"0.004":1.485781197382152,"0.008":1.4739848589893514,"0.016":1.5337250172851051,"0.002":1.566527026433566},"reservoir_r0.9":{"0.001":1.9943525923786862,"0.004":1.7824546600597793,"0.008":1.7027193137298953,"0.016":1.6759697395284299,"0.032":1.7385391750082264,"0.002":1.8829477292201287}},"budget_check":{},"mechanism":"reservoir_r0.9","null":"reservoir_r0","incumbent":"gru","tuned":{"gru":["0.008",1.4739848589893514],"reservoir_r0.9":["0.016",1.6759697395284299]},"mechanism_vs_null":1.4275134040582664,"mechanism_vs_incumbent":0.3266270763518955,"mechanism_vs_incumbent_tuned":0.20198488053907848,"reading":"carries the model, 0.20 bits/byte behind the incumbent at each one's best learning rate","level":"between the trigram (2.40) and 4-gram (1.83) floors","reading_short":"carries the model, 0.20 behind the incumbent at best rates"},"e3_genome":{"title":"E3. Every weight emitted by a small genome","lineage":"DRN","old_share":"0.26% (the weight generator)","crosses":"the phenotype (E1's cellular automaton, d = 64, 4 iterations); the genome only writes its weights","budget_bytes":8000000,"ctx":256,"floors":{"unigram":4.389808725228226,"bigram":3.316889384108963,"trigram":2.397296718008632,"4-gram":1.8195339302562967,"5-gram":1.5374041941303025,"train_bytes":8000000},"arms":{"genome":{"bpb":3.42074262188489,"sd":0.001007022824574524,"values":[3.4200305492168237,3.4214546945529563],"seeds":[0,1],"role":"13K-parameter genome emitting all 66K phenotype weights, trained end to end (the mechanism)","trainable_params":13084,"share":0.9996942830938551,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the unigram (4.39) and bigram (3.32) floors","curve":[3.638161734742277,3.473397754679796,3.4488742540431465,3.4200305492168237]},"genome_h192":{"bpb":3.8929289762730805,"sd":0.703021580688675,"values":[4.3900403032985285,3.395817649247633],"seeds":[0,1],"role":"a wider genome, 44K parameters for the same 66K weights","trainable_params":44476,"share":0.9999100638546632,"fixed_mechanism_params":0,"seeds_disagree":true,"level":"between the unigram (4.39) and bigram (3.32) floors","curve":[4.398591710656054,4.39151099143955,4.395766852619969,4.3900403032985285]},"genome_frozen":{"bpb":3.8584352651538656,"sd":0.15740302136555342,"values":[3.9697360089406994,3.7471345213670317],"seeds":[0,1],"role":"genome frozen at initialisation with a trained readout: a random-features probe","trainable_params":16644,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the unigram (4.39) and bigram (3.32) floors","curve":[4.091150235507183,4.008041919745686,3.9795709873151086,3.9697360089406994]},"direct":{"bpb":1.6902719672590005,"sd":0.00024460351221553006,"values":[1.6900990064568109,1.6904449280611902],"seeds":[0,1],"role":"the same phenotype with its 66K weights trained directly (the null arm: no genome)","trainable_params":66500,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the 4-gram (1.82) and 5-gram (1.54) floors","curve":[1.9359286750854072,1.7803329289066872,1.7115357947225214,1.6900990064568109]},"direct_small":{"bpb":2.1916684623834666,"sd":0.015587777230675037,"values":[2.202690685366902,2.1806462394000308],"seeds":[0,1],"role":"a directly trained phenotype with 17K parameters, about the genome's count (the incumbent at matched size)","trainable_params":17260,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the trigram (2.40) and 4-gram (1.82) floors","curve":[2.473408124635591,2.2840269671363185,2.2226584085778582,2.202690685366902]}},"lr_check":{"direct":{"0.001":1.8143278688405686,"0.004":1.6080236722409744,"0.008":1.5652471691670498,"0.016":1.5550351618262865,"0.032":1.5518284109395035,"0.002":1.6900990064568109},"direct_small":{"0.001":2.3606440019703965,"0.004":2.0962104755478492,"0.008":2.0223108310908975,"0.016":1.9750293499667784,"0.032":1.96672963921879,"0.002":2.202690685366902},"genome_h192":{"0.0005":4.391486849374935,"0.002":4.3900403032985285},"genome":{"0.0005":3.939046070357364,"0.001":3.4269527004292324,"0.004":3.3875117256263825,"0.008":4.390112278037914,"0.016":4.388938947900234,"0.002":3.4200305492168237}},"budget_check":{},"mechanism":"genome","null":"direct","incumbent":"direct_small","tuned":{"direct":["0.032",1.5518284109395035],"direct_small":["0.032",1.96672963921879],"genome_h192":["0.002",4.3900403032985285],"genome":["0.004",3.3875117256263825]},"mechanism_vs_null":-1.7304706546258894,"mechanism_vs_incumbent":1.2290741595014234,"mechanism_vs_incumbent_tuned":1.4207820864075924,"reading":"worse than its null arm","level":"between the unigram (4.39) and bigram (3.32) floors","reading_short":"worse than its null arm"},"e4_kuramoto":{"title":"E4. Coupled oscillators as the recurrence","lineage":"DRN","old_share":"0.0016% (the Kuramoto term)","crosses":"the oscillator phases, carried from byte to byte and coupled through A","budget_bytes":6000000,"ctx":64,"floors":{"unigram":4.390338004280385,"bigram":3.318003164181081,"trigram":2.399856674105256,"4-gram":1.8250366768908042,"5-gram":1.546986570324024,"train_bytes":6000000},"arms":{"kuramoto":{"bpb":2.0382127433559383,"sd":0.0011847464829940059,"values":[2.0390504856280502,2.0373750010838263],"seeds":[0,1],"role":"trained coupling A, learned K (the mechanism)","trainable_params":328193,"share":0.1996904260602755,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the trigram (2.40) and 4-gram (1.83) floors","curve":[2.638074147142261,2.1852275750599794,2.0778230068626593,2.0390504856280502]},"kuramoto_fixedA":{"bpb":3.9220683595846704,"sd":0.03701517639166775,"values":[3.948242041818035,3.895894677351306],"seeds":[0,1],"role":"fixed random coupling, everything else trained","trainable_params":262657,"share":3.8072467133942745e-06,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the unigram (4.39) and bigram (3.32) floors","curve":[4.157487426593649,4.02762263362208,3.9697654717185755,3.948242041818035]},"kuramoto_k0":{"bpb":3.9554498293412372,"sd":0.0021852042623976184,"values":[3.9569950020934566,3.9539046565890184],"seeds":[0,1],"role":"coupling off: phases only accumulate the input (integration without interaction; cannot represent a bigram)","trainable_params":262656,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the unigram (4.39) and bigram (3.32) floors","curve":[4.157428398923198,4.029449089374244,3.9760533347912284,3.9569950020934566]},"kuramoto_nomem":{"bpb":3.3184434903526494,"sd":0.00024219791245126815,"values":[3.318272230566366,3.318614750138933],"seeds":[0,1],"role":"phases reset every byte: no memory at all (the null arm)","trainable_params":262656,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the unigram (4.39) and bigram (3.32) floors","curve":[3.336928156107866,3.3289845891830674,3.3203282240383944,3.318272230566366]},"gru":{"bpb":1.5627315453425181,"sd":0.005367620834690702,"values":[1.566527026433566,1.55893606425147],"seeds":[0,1],"role":"a trained GRU with the same state size (the incumbent)","trainable_params":395008,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the 4-gram (1.83) and 5-gram (1.55) floors","curve":[1.879709196476912,1.6650182067889565,1.5928737608349033,1.566527026433566]}},"lr_check":{"gru":{"0.001":1.685750720724926,"0.004":1.485781197382152,"0.008":1.4739848589893514,"0.016":1.5337250172851051,"0.002":1.566527026433566},"kuramoto":{"0.001":2.3103998858962496,"0.004":1.887373533444661,"0.008":1.804381752052497,"0.016":1.7834824149451907,"0.032":1.8690337657600253,"0.002":2.0390504856280502}},"budget_check":{},"mechanism":"kuramoto","null":"kuramoto_nomem","incumbent":"gru","tuned":{"gru":["0.008",1.4739848589893514],"kuramoto":["0.016",1.7834824149451907]},"mechanism_vs_null":1.2802307469967111,"mechanism_vs_incumbent":0.47548119801342015,"mechanism_vs_incumbent_tuned":0.3094975559558393,"reading":"carries the model, 0.31 bits/byte behind the incumbent at each one's best learning rate","level":"between the trigram (2.40) and 4-gram (1.83) floors","reading_short":"carries the model, 0.31 behind the incumbent at best rates"},"e5_morphogen":{"title":"E5. A morphogen field as the only thing that crosses positions","lineage":"NCALM v13","old_share":"0.39% (the morphogen field)","crosses":"causal diffusion along positions: 512 learned per-channel, per-step rates","budget_bytes":8000000,"ctx":256,"floors":{"unigram":4.389808725228226,"bigram":3.316889384108963,"trigram":2.397296718008632,"4-gram":1.8195339302562967,"5-gram":1.5374041941303025,"train_bytes":8000000},"arms":{"morphogen":{"bpb":1.423608873874041,"sd":0.0038949966459322386,"values":[1.4263630524150785,1.4208546953330035],"seeds":[0,1],"role":"learned diffusion, learned reaction (the mechanism)","trainable_params":331264,"share":0.8006182380216383,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"below the 5-gram floor (1.54)","curve":[1.801802813083773,1.579555609770883,1.4703606860547074,1.4263630524150785]},"morphogen_nodiff":{"bpb":3.3175427339059844,"sd":0.00040490082352704677,"values":[3.3172564257879604,3.3178290420240084],"seeds":[0,1],"role":"diffusion off: the reaction alone, so nothing crosses positions (the null arm)","trainable_params":330752,"share":0.8003095975232198,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the unigram (4.39) and bigram (3.32) floors","curve":[3.3335239422656033,3.326330875382423,3.322323765608645,3.3172564257879604]},"morphogen_lin":{"bpb":2.833551033533654,"sd":0.0023140501619402366,"values":[2.835187314095168,2.8319147529721405],"seeds":[0,1],"role":"diffusion only, no reaction: a linear model","trainable_params":66560,"share":0.007692307692307693,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the bigram (3.32) and trigram (2.40) floors","curve":[3.1413395857953397,2.912559976203643,2.8548351065798565,2.835187314095168]},"transformer_s":{"bpb":2.3030865467083093,"sd":0.0072946601587129765,"values":[2.3082446503729863,2.2979284430436318],"seeds":[0,1],"role":"1-layer transformer, d = 96 (the incumbent)","trainable_params":186016,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the trigram (2.40) and 4-gram (1.82) floors","curve":[3.221892260862847,2.5817763062512373,2.3964815962723693,2.3082446503729863]}},"lr_check":{"morphogen":{"0.001":1.5385160024836846,"0.004":1.3663170189439218,"0.008":1.334340886608278,"0.016":1.3354196854070197,"0.002":1.4263630524150785},"transformer_s":{"0.001":2.911457481420287,"0.004":1.8929711387736183,"0.008":1.6759910116325585,"0.016":1.6136539220268484,"0.002":2.3082446503729863}},"budget_check":{"morphogen":{"lr":0.008,"main_budget":1.334340886608278,"24m":1.2134332026931633}},"mechanism":"morphogen","null":"morphogen_nodiff","incumbent":"transformer_s","tuned":{"morphogen":["0.008",1.334340886608278],"transformer_s":["0.016",1.6136539220268484]},"mechanism_vs_null":1.8939338600319435,"mechanism_vs_incumbent":-0.8794776728342684,"mechanism_vs_incumbent_tuned":-0.27931303541857044,"reading":"carries the model, 0.28 bits/byte ahead of the incumbent at each one's best learning rate","level":"below the 5-gram floor (1.54)","reading_short":"carries the model, 0.28 ahead of the incumbent at best rates"},"e6_predcode":{"title":"E6. Hierarchical predictive coding as the whole model","lineage":"APCN-LM","old_share":"about 30% (the non-transformer part)","crosses":"two levels of latent state, carried from byte to byte and corrected by prediction errors","budget_bytes":6000000,"ctx":64,"floors":{"unigram":4.390338004280385,"bigram":3.318003164181081,"trigram":2.399856674105256,"4-gram":1.8250366768908042,"5-gram":1.546986570324024,"train_bytes":6000000},"arms":{"pc_k3":{"bpb":2.0352067795268085,"sd":0.00025566433072103656,"values":[2.035025997544848,2.035387561508769],"seeds":[0,1],"role":"three inference steps per byte (the mechanism)","trainable_params":230656,"share":0.21642619311875694,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the trigram (2.40) and 4-gram (1.83) floors","curve":[2.35520209199782,2.149964483428756,2.0661592429086135,2.035025997544848]},"pc_k1":{"bpb":2.021360687407531,"sd":0.0026313442104786413,"values":[2.0232213287423964,2.0195000460726655],"seeds":[0,1],"role":"one inference step per byte","trainable_params":230656,"share":0.21642619311875694,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the trigram (2.40) and 4-gram (1.83) floors","curve":[2.352395856458149,2.1302682509555604,2.0496537696229,2.0232213287423964]},"pc_g0":{"bpb":4.387666198354211,"sd":0.000391618720562658,"values":[4.38794311460716,4.387389282101261],"seeds":[0,1],"role":"gains fixed at zero: the states never move (a unigram model by construction)","trainable_params":230272,"share":0.2151195108393552,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the unigram (4.39) and bigram (3.32) floors","curve":[4.3887491811683805,4.387194189281689,4.388725270205453,4.38794311460716]},"pc_nomem":{"bpb":3.3178365635777545,"sd":2.1886017445470165e-05,"values":[3.3178210878264056,3.3178520393291033],"seeds":[0,1],"role":"states reset every byte: inference without memory (the null arm)","trainable_params":230656,"share":0.21642619311875694,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"between the bigram (3.32) and trigram (2.40) floors","curve":[3.3373408177296957,3.3258593097026727,3.3214945673808836,3.3178210878264056]},"gru":{"bpb":1.4791572291523636,"sd":0.006221831069495165,"values":[1.4835567280930009,1.4747577302117265],"seeds":[0,1],"role":"a trained GRU with the same total state size (the incumbent)","trainable_params":633344,"share":0.0,"fixed_mechanism_params":0,"seeds_disagree":false,"level":"below the 5-gram floor (1.55)","curve":[1.8467960623509334,1.5987168512437504,1.5141480789653432,1.4835567280930009]}},"lr_check":{"gru":{"0.001":1.60957666482935,"0.004":1.4093510915661882,"0.008":1.413815598605237,"0.016":1.5195182641108238,"0.002":1.4835567280930009},"pc_k3":{"0.001":2.1995251108888563,"0.004":1.9066591358410903,"0.008":1.8196432882606648,"0.016":1.7726362457644311,"0.032":NaN,"0.002":2.035025997544848}},"budget_check":{},"mechanism":"pc_k3","null":"pc_nomem","incumbent":"gru","tuned":{"gru":["0.004",1.4093510915661882],"pc_k3":["0.016",1.7726362457644311]},"mechanism_vs_null":1.282629784050946,"mechanism_vs_incumbent":0.5560495503744449,"mechanism_vs_incumbent_tuned":0.3632851541982429,"reading":"carries the model, 0.36 bits/byte behind the incumbent at each one's best learning rate","level":"between the trigram (2.40) and 4-gram (1.83) floors","reading_short":"carries the model, 0.36 behind the incumbent at best rates"}}}};
+</script>
+<script>
+(function(){
+'use strict';
+const $ = (s, el=document) => el.querySelector(s);
+const NS = 'http://www.w3.org/2000/svg';
+function el(tag, attrs={}, children=[]){ const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); for (const c of children) e.appendChild(typeof c==='string'?document.createTextNode(c):c); return e; }
+function txt(x, y, s, attrs={}){ return el('text', Object.assign({x, y}, attrs), [s]); }
+const fmt = (v, d=2) => Number(v).toFixed(d);
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+const COL = () => ({blue:css('--blue'), orange:css('--orange'), aqua:css('--aqua'), grey:css('--grey'), sand:css('--sand'), ink:css('--ink'), ink2:css('--ink2'), ink3:css('--ink3'), rule:css('--rule'), paper:css('--paper'), card:css('--card')});
+const reduced = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+const OUTCOME = {
+  'survived': {label:'measured against a fair baseline', colour:'blue'},
+  'current': {label:'current work', colour:'aqua'},
+  'no-fair-baseline': {label:'measured, without a fair baseline or a surviving log', colour:'orange'},
+  'no-artifacts': {label:'measured, without a fair baseline or a surviving log', colour:'orange'},
+  'lost-or-equivalent': {label:'lost to a known method', colour:'orange'},
+  'did-not-learn': {label:'never learned', colour:'grey'},
+  'unbuilt': {label:'unbuilt', colour:'sand'},
+};
+const SHORT = {dpnca:'DPNCA-LM', ncalm:'NCALM', wavelm:'WaveLM', hdclm:'HDC-LM', sfnn:'SFNN, a plan', pw:'Mamba+DeltaNet', mashi:'APCN-LM, VTM-LM', nen:'NEN', fedn:'FEDN, CAIN', olento:'olento', harm:'HARM-LM', 'wave-treatise':'Wave-AI treatise', apeiron:'APEIRON', drn:'DRN', rglm:'RGLM lineage', chaotic:'Chaotic Reservoir LM', evolve:'developmental-lm', fly:'FlyBrainLLM'};
+
+/* tooltip */
+const tip = $('#tip');
+function placeTip(x, y){ const w = tip.offsetWidth || 200, h = tip.offsetHeight || 40; const left = Math.max(w/2 + 8, Math.min(window.innerWidth - w/2 - 8, x)); tip.style.left = left + 'px'; tip.style.top = Math.max(y, h + 16) + 'px'; }
+function showTip(e, text){ tip.textContent = text; tip.hidden = false; placeTip(e.clientX, e.clientY); }
+function hideTip(){ tip.hidden = true; }
+function bindTip(node, text){ const t = () => typeof text==='function' ? text() : text; node.addEventListener('mouseenter', e=>showTip(e, t())); node.addEventListener('mousemove', e=>placeTip(e.clientX, e.clientY)); node.addEventListener('mouseleave', hideTip); node.addEventListener('click', e=>{ e.stopPropagation(); showTip(e, t()); }); }
+document.addEventListener('click', hideTip);
+window.addEventListener('scroll', hideTip, {passive:true});
+
+/* scales */
+function niceStep(raw){ const p = Math.pow(10, Math.floor(Math.log10(raw))); const r = raw/p; return (r<1.5?1:r<3.5?2:r<7.5?5:10)*p; }
+function linScale(d0,d1,r0,r1){ const f = v => r0 + (v-d0)/(d1-d0)*(r1-r0); f.ticks = n => { const step = niceStep((d1-d0)/n); const out=[]; for(let v=Math.ceil(d0/step-1e-9)*step; v<=d1+1e-9; v+=step) out.push(+v.toFixed(10)); return out; }; return f; }
+function logScale(d0,d1,r0,r1){ const l0=Math.log10(d0), l1=Math.log10(d1); const f = v => r0 + (Math.log10(v)-l0)/(l1-l0)*(r1-r0); f.ticks = () => { const out=[]; const span = l1-l0; const mult = span>3 ? [1] : [1,2,5]; const every = span>5 ? 2 : 1; for(let p=Math.floor(l0); p<=Math.ceil(l1); p++){ if ((p - Math.floor(l0)) % every) continue; const b=Math.pow(10,p); for (const m of mult){ const v=b*m; if (v>=d0*0.999 && v<=d1*1.001) out.push(v);} } return out; }; return f; }
+const fmtTick = v => Math.abs(v)>=1e6 ? (v/1e6).toFixed(v%1e6?1:0)+'M' : Math.abs(v)>=1e3 ? (v/1e3).toFixed(0)+'k' : (Number.isInteger(v)? String(v) : String(+v.toFixed(3)));
+
+/* line chart */
+function lineChart(container, opt){
+  container.innerHTML='';
+  const C = COL();
+  const W = opt.width||420, H = opt.height||240, m = {t:opt.title?30:14, r:14, b:opt.legend===false?28:48, l:44};
+  const svg = el('svg', {viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':opt.aria||opt.title||''});
+  const xs = opt.xScale==='log' ? logScale(opt.xDomain[0],opt.xDomain[1],m.l,W-m.r) : linScale(opt.xDomain[0],opt.xDomain[1],m.l,W-m.r);
+  const ys = opt.yScale==='log' ? logScale(opt.yDomain[0],opt.yDomain[1],H-m.b,m.t) : linScale(opt.yDomain[0],opt.yDomain[1],H-m.b,m.t);
+  const grid = el('g',{class:'grid'}), axis = el('g',{class:'axis'});
+  for (const v of ys.ticks(opt.yTicks||4)){ grid.appendChild(el('line',{x1:m.l,x2:W-m.r,y1:ys(v),y2:ys(v)})); svg.appendChild(txt(m.l-6, ys(v)+4, opt.yFmt?opt.yFmt(v):fmtTick(v), {'text-anchor':'end'})); }
+  for (const v of xs.ticks(opt.xTicks||5)){ svg.appendChild(txt(xs(v), H-m.b+15, opt.xFmt?opt.xFmt(v):fmtTick(v), {'text-anchor':'middle'})); }
+  axis.appendChild(el('line',{x1:m.l,x2:W-m.r,y1:H-m.b,y2:H-m.b}));
+  svg.appendChild(grid); svg.appendChild(axis);
+  if (opt.title) svg.appendChild(txt(m.l, 14, opt.title, {class:'cap'}));
+  for (const r of (opt.refLines||[])){ const y = ys(r.y); svg.appendChild(el('line',{x1:m.l,x2:W-m.r,y1:y,y2:y,stroke:C[r.colour||'ink3'],'stroke-dasharray':'5 4','stroke-width':1.2})); svg.appendChild(txt(r.at==='start'? m.l+4 : W-m.r, y-5, r.label, {'text-anchor':r.at==='start'?'start':'end', fill:C[r.colour||'ink2']})); }
+  const hover = [];
+  for (const s of opt.series){
+    const pts = s.points.filter(p=>p[1]!=null);
+    const d = pts.map((p,i)=>(i?'L':'M')+xs(p[0]).toFixed(1)+' '+ys(p[1]).toFixed(1)).join(' ');
+    svg.appendChild(el('path',{d, fill:'none', stroke:C[s.colour], 'stroke-width':s.width||2, 'stroke-linejoin':'round', 'stroke-linecap':'round'}));
+    if (s.dots) for (const p of pts) svg.appendChild(el('circle',{cx:xs(p[0]),cy:ys(p[1]),r:s.dots,fill:C[s.colour]}));
+    hover.push({s, pts});
+  }
+  if (opt.legend!==false){ let lx = m.l; const ly = H-m.b+34; for (const s of opt.series){ svg.appendChild(el('line',{x1:lx,x2:lx+16,y1:ly-4,y2:ly-4,stroke:C[s.colour],'stroke-width':2.5})); svg.appendChild(txt(lx+21, ly, s.name)); lx += 21 + s.name.length*6.4 + 18; } }
+  const cross = el('line',{x1:0,x2:0,y1:m.t,y2:H-m.b,stroke:C.ink3,'stroke-width':1,visibility:'hidden'}); svg.appendChild(cross);
+  const area = el('rect',{x:m.l,y:m.t,width:W-m.l-m.r,height:H-m.t-m.b,fill:'transparent'}); svg.appendChild(area);
+  function near(evt){ const r = svg.getBoundingClientRect(); const px = (evt.clientX - r.left) * W / r.width; let best=null; for (const h of hover) for (const p of h.pts){ const dx = Math.abs(xs(p[0])-px); if(!best||dx<best.dx) best={dx, x:p[0]}; } return best; }
+  function onMove(evt){ const b = near(evt); if(!b) return; cross.setAttribute('x1',xs(b.x)); cross.setAttribute('x2',xs(b.x)); cross.setAttribute('visibility','visible'); const lines = [ (opt.xName||'x')+' '+(opt.xFmt?opt.xFmt(b.x):fmtTick(b.x)) ]; for (const h of hover){ const p = h.pts.find(p=>p[0]===b.x); if (p) lines.push(h.s.name+': '+(opt.yFmtTip?opt.yFmtTip(p[1]):fmt(p[1],3))); } showTip(evt, lines.join('\n')); }
+  area.addEventListener('mousemove', onMove); area.addEventListener('click', e=>{ e.stopPropagation(); onMove(e); }); area.addEventListener('mouseleave', ()=>{ cross.setAttribute('visibility','hidden'); hideTip(); });
+  container.appendChild(svg);
+}
+
+/* horizontal bars */
+function barChart(container, opt){
+  container.innerHTML='';
+  const C = COL();
+  const rows = opt.rows, W = opt.width||560, rowH = opt.rowH||26, m = {t:opt.title?26:6, r:opt.right||70, b:opt.axis===false?6:30, l:opt.labelW||200};
+  const H = m.t + rows.length*rowH + m.b;
+  const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':opt.aria||opt.title||''});
+  const d0 = opt.xDomain[0], d1 = opt.xDomain[1];
+  const xs = opt.xScale==='log' ? logScale(d0,d1,m.l,W-m.r) : linScale(d0,d1,m.l,W-m.r);
+  if (opt.axis!==false){ const grid = el('g',{class:'grid'}); for (const v of xs.ticks(opt.xTicks||5)){ grid.appendChild(el('line',{x1:xs(v),x2:xs(v),y1:m.t,y2:H-m.b})); svg.appendChild(txt(xs(v), H-m.b+15, opt.xFmt?opt.xFmt(v):fmtTick(v), {'text-anchor':'middle'})); } svg.appendChild(grid); }
+  if (opt.title) svg.appendChild(txt(m.l, 14, opt.title, {class:'cap'}));
+  const zero = opt.xScale==='log' ? xs(d0) : xs(Math.max(d0, Math.min(d1, 0)));
+  const bars = [];
+  rows.forEach((r,i)=>{
+    const y = m.t + i*rowH + rowH*0.2, h = rowH*0.6;
+    const lab = txt(m.l-10, y+h*0.5+4, r.label, {'text-anchor':'end', fill: r.bold?C.ink:C.ink2}); if (r.bold) lab.setAttribute('font-weight','700'); svg.appendChild(lab);
+    const x0 = Math.min(zero, xs(r.value)), x1 = Math.max(zero, xs(r.value));
+    const rect = el('rect',{x:x0, y, width:Math.max(1.5, x1-x0), height:h, fill:C[r.colour||'blue']});
+    svg.appendChild(rect); bars.push({rect, x0, w:Math.max(1.5, x1-x0)});
+    const val = txt(x1+6, y+h*0.5+4, r.text!=null ? r.text : fmt(r.value, r.dec==null?2:r.dec), {fill:C.ink}); svg.appendChild(val);
+    if (r.tip){ bindTip(rect, r.tip); bindTip(lab, r.tip); }
+  });
+  container.appendChild(svg);
+  return bars;
+}
+
+/* ---------- hero: the ranking ---------- */
+const ROWS = (function(){
+  const S = DATA.scores; const rows = DATA.projects.map(p=>{ const s = S[p.id]||{}; const n = k => s[k]!=null ? +s[k] : null; return Object.assign({}, p, {short:SHORT[p.id], composite:n('composite'), novelty:n('novelty'), performance:n('performance')}); });
+  rows.sort((a,b)=>(b.composite??-1)-(a.composite??-1)); return rows;
+})();
+(function ranking(){
+  const C = COL(); const scored = ROWS.filter(r=>r.composite!=null); const box = $('#rank-vis');
+  let first = true;
+  function render(){
+    const compact = box.clientWidth < 480;
+    const bars = barChart(box, {aria:'The sixteen audited programmes ranked by composite score', width: compact?400:760, rowH: compact?24:27, labelW: compact?128:190, right: compact?44:52, xDomain:[0,5], axis:false,
+      rows: scored.map(r=>({label:r.short, value:r.composite, colour:OUTCOME[r.outcome].colour, bold:r.outcome==='survived', dec:2, tip:`${r.short}, composite ${fmt(r.composite,2)} of 10\n${r.verdict}`}))});
+    if (first && !reduced){ bars.forEach(b=> b.rect.setAttribute('width', 1.5)); let t0 = null; const frame = ts => { if (t0===null) t0 = ts; const k = Math.min(1, (ts-t0)/900); const e = 1-Math.pow(1-k,3); bars.forEach(b=> b.rect.setAttribute('width', Math.max(1.5, b.w*e))); if (k<1) requestAnimationFrame(frame); }; requestAnimationFrame(frame); }
+    first = false;
+  }
+  render(); let t; window.addEventListener('resize', ()=>{ clearTimeout(t); t = setTimeout(render, 150); });
+  const counts = {}; for (const r of scored){ const k = OUTCOME[r.outcome].colour; counts[k] = (counts[k]||0)+1; }
+  const legend = $('#legend');
+  for (const [col,lbl] of [['blue','measured against a fair baseline'],['orange','measured without a fair baseline, or lost to a known method'],['grey','never learned'],['sand','unbuilt']]){ const s = document.createElement('span'); s.innerHTML = `<i style="background:${C[col]}"></i>${lbl}<span class="n">${counts[col]||0}</span>`; legend.appendChild(s); }
+  const note = document.createElement('span'); note.className = 'small'; note.style.marginTop = '6px'; note.textContent = 'Composite of fifteen facets, each 1 to 10. Performance is capped when nothing was measured. Hover a bar for the verdict.'; legend.appendChild(note);
+})();
+
+/* ---------- DPNCA: reach grows additively ---------- */
+(function dpnca(){
+  const C = COL(); const box = $('#dp-vis'); const W = 440, H = 118;
+  const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'How much of the 1,024-token context the model can reach: attention in one hop, against the causal NCA rule'});
+  const l = 8, r = 8, bw = W-l-r;
+  svg.appendChild(txt(l, 12, 'attention: every earlier token in one hop', {class:'cap'}));
+  svg.appendChild(el('rect',{x:l,y:18,width:bw,height:12,fill:C.grey,opacity:.6}));
+  svg.appendChild(txt(W-r, 44, '1,024 of 1,024', {'text-anchor':'end'}));
+  svg.appendChild(txt(l, 66, 'causal NCA, kernel 7: reach = layers × steps × 6 + 1', {class:'cap'}));
+  svg.appendChild(el('rect',{x:l,y:72,width:bw,height:12,fill:C.rule}));
+  const bar = el('rect',{x:l+bw,y:72,width:0,height:12,fill:C.blue}); svg.appendChild(bar);
+  const lab = txt(W-r, 98, '', {'text-anchor':'end', fill:C.ink}); svg.appendChild(lab);
+  svg.appendChild(txt(l, 98, 'current token at the right edge', {fill:C.ink3}));
+  box.appendChild(svg);
+  const n = $('#dp-n'), t = $('#dp-t'), ro = $('#dp-readout');
+  function render(){ const N = +n.value, T = +t.value; const reach = Math.min(1024, N*T*6+1); const w = bw*reach/1024; bar.setAttribute('x', l+bw-w); bar.setAttribute('width', w); lab.textContent = `${reach} of 1,024`; $('#dp-n-out').value = N; $('#dp-t-out').value = T; ro.innerHTML = `${N} layers × ${T} steps × (7 − 1) + 1 = <b>${reach}</b> tokens` + (reach>=1024?', the whole context':''); }
+  n.addEventListener('input', render); t.addEventListener('input', render); render();
+})();
+
+/* ---------- NCALM ---------- */
+(function ncalm(){
+  const g = DATA.ncalm_2b.gpt2.map(r=>[r.step, r.val_ppl]), v = DATA.ncalm_2b.v7_1.map(r=>[r.step, r.val_ppl]);
+  lineChart($('#nc-vis'), {title:'validation perplexity over 2.0B Pile tokens, log scale', aria:'Validation perplexity of the GPT-2 baseline and NCA v7.1 across 30 shared checkpoints', width:440, height:250, xDomain:[0,30000], yDomain:[10,300], yScale:'log', yTicks:4, xName:'step', xFmt:fmtTick, yFmtTip:v=>fmt(v,2)+' ppl',
+    series:[{name:'GPT-2 162M, best 14.45', colour:'blue', points:g, dots:1.8},{name:'NCA v7.1, best 15.68', colour:'orange', points:v, dots:1.8}]});
+})();
+
+/* ---------- WaveLM: dilated causal taps ---------- */
+(function wavelm(){
+  const C = COL(); const box = $('#wv-vis'); const N = 64, W = 440, H = 150, cw = (W-16)/N;
+  const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'Which earlier bytes the current byte has received information from after each dilated convolution step'});
+  svg.appendChild(txt(8, 12, 'each step reads two taps at offsets D and 2D, with D doubling every step', {class:'cap'}));
+  const arcs = el('g',{fill:'none', stroke:C.aqua, 'stroke-width':1.3}); svg.appendChild(arcs);
+  const cells = [];
+  for (let i=0;i<N;i++){ const c = el('rect',{x:8+i*cw+0.5, y:40, width:cw-1, height:20, fill:C.rule}); svg.appendChild(c); cells.push(c); }
+  svg.appendChild(txt(8, 76, '64 earlier bytes', {fill:C.ink3})); svg.appendChild(txt(W-8, 76, 'current byte', {'text-anchor':'end', fill:C.ink3}));
+  const lad = DATA.wavelm_ladder; const wl = lad.filter(r=>r.arch==='wavelm'), gp = lad.filter(r=>r.arch==='gpt');
+  svg.appendChild(txt(8, 104, 'the ladder, bits per byte at 0.5M, 1.2M, 3M and 7M parameters', {class:'cap'}));
+  svg.appendChild(txt(8, 122, 'WaveLM  ' + wl.map(r=>fmt(r.bpb,2)).join('   '), {fill:C.orange}));
+  svg.appendChild(txt(8, 140, 'byte transformer  ' + gp.map(r=>fmt(r.bpb,2)).join('   '), {fill:C.blue}));
+  box.appendChild(svg);
+  const L = 6, DELTA = 2; let tau = 0, reach = new Set([0]); const ro = $('#wv-readout');
+  function render(taps){
+    for (let i=0;i<N;i++){ const off = N-1-i; cells[i].setAttribute('fill', off===0 ? C.orange : taps.has(off) ? C.aqua : reach.has(off) ? C.blue : C.rule); }
+    arcs.innerHTML = '';
+    if (tau>0){ const D = 1<<((tau-1)%L); for (const o of taps){ const from = o - D; if (from < 0 || from >= N || o >= N) continue; const x1 = 8+(N-1-o)*cw+cw/2, x2 = 8+(N-1-from)*cw+cw/2; arcs.appendChild(el('path',{d:`M${x1} 40 Q${(x1+x2)/2} ${40-Math.min(16, Math.abs(x2-x1)/2.5)} ${x2} 40`})); } }
+    const covered = [...reach].filter(o=>o<N).length;
+    ro.innerHTML = `step ${tau}, D = ${tau===0?'–':1<<((tau-1)%L)}, reachable <b>${covered}</b> of 64`;
+  }
+  function step(){ const D = 1<<(tau%L); const next = new Set(reach), taps = new Set(); for (const r of reach) for (let j=1;j<=DELTA;j++){ const o = r + j*D; if (o < 1024){ next.add(o); if (!reach.has(o)) taps.add(o);} } reach = next; tau += 1; render(taps); }
+  function reset(){ tau = 0; reach = new Set([0]); render(new Set()); }
+  $('#wv-step').addEventListener('click', ()=>{ if (tau >= L) reset(); step(); });
+  $('#wv-reset').addEventListener('click', reset);
+  reset(); step();
+})();
+
+/* ---------- HDC-LM: credit paths ---------- */
+(function hdc(){
+  const depth = $('#hd-depth'), transport = $('#hd-transport'), time = $('#hd-time');
+  const MQ = Object.fromEntries(DATA.hdc_mqar.map(r=>[r.id, r]));
+  function config(){ const d = depth.checked, tr = transport.checked, tm = time.checked;
+    if (d && tr && tm) return {r:MQ.l1, note:'L1: depth credit, exact key path, explicit reverse-time sweep'};
+    if (d && !tr && tm) return {r:MQ.l1fa, note:'L1-FA: fixed random feedback in place of the transpose'};
+    if (!d && tr && tm) return {r:MQ.l0, note:'L0: pure local, each block learns from its own error'};
+    if (d && tr && !tm) return {r:MQ.l1vf_cyclic, note:'L1-VF cyclic: a joint space-time relaxation with no backward sweep'};
+    return null; }
+  function draw(){
+    const C = COL(); const box = $('#hd-vis'); box.innerHTML='';
+    const W = 440, H = 160; const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'Two blocks over two time steps, with the credit paths the current rule keeps'});
+    const defs = el('defs'); for (const [id,col] of [['a1',C.ink2],['a2',C.blue]]) defs.appendChild(el('marker',{id:'hd-'+id,viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:6,markerHeight:6,orient:'auto-start-reverse'},[el('path',{d:'M0 0L10 5L0 10z',fill:col})])); svg.appendChild(defs);
+    const bx = [100, 250], by = [118, 46];
+    for (const t of [0,1]) for (const l of [0,1]){ svg.appendChild(el('rect',{x:bx[t]-34,y:by[l]-14,width:68,height:28,fill:C.card,stroke:C.ink,'stroke-width':1.2})); svg.appendChild(txt(bx[t], by[l]+4, 'block '+(l+1), {'text-anchor':'middle', fill:C.ink})); }
+    svg.appendChild(txt(bx[0], 152, 'time t − 1', {'text-anchor':'middle'})); svg.appendChild(txt(bx[1], 152, 'time t', {'text-anchor':'middle'}));
+    for (const t of [0,1]) svg.appendChild(el('line',{x1:bx[t],y1:by[0]-14,x2:bx[t],y2:by[1]+14,stroke:C.ink2,'stroke-width':1.3,'marker-end':'url(#hd-a1)'}));
+    for (const l of [0,1]) svg.appendChild(el('line',{x1:bx[0]+34,y1:by[l]-5,x2:bx[1]-34,y2:by[l]-5,stroke:C.ink2,'stroke-width':1.3,'marker-end':'url(#hd-a1)'}));
+    svg.appendChild(txt(14, 14, 'grey: forward pass', {fill:C.ink2})); svg.appendChild(txt(150, 14, 'blue: credit the rule carries', {fill:C.blue})); svg.appendChild(txt(330, 14, 'orange: cut', {fill:C.orange}));
+    function credit(on, x1,y1,x2,y2){ svg.appendChild(el('line',{x1,y1,x2,y2,stroke:on?C.blue:C.orange,'stroke-width':2,'stroke-dasharray':on?'none':'4 4','marker-end':on?'url(#hd-a2)':'none'})); }
+    credit(depth.checked, bx[1]+46, by[1]+14, bx[1]+46, by[0]-14);
+    svg.appendChild(txt(bx[1]+54, (by[0]+by[1])/2-2, depth.checked?'depth credit':'no depth credit', {fill: depth.checked?C.blue:C.orange}));
+    svg.appendChild(txt(bx[1]+54, (by[0]+by[1])/2+12, depth.checked ? (transport.checked?'via the transpose':'via random feedback') : '', {fill: transport.checked?C.blue:C.aqua}));
+    for (const l of [0,1]) credit(time.checked, bx[1]-34, by[l]+8, bx[0]+34, by[l]+8);
+    svg.appendChild(txt((bx[0]+bx[1])/2, (by[0]+by[1])/2+4, time.checked?'reverse-time sweep':'no reverse-time pass', {'text-anchor':'middle', fill: time.checked?C.blue:C.orange}));
+    box.appendChild(svg);
+    const cfg = config(); const big = $('#hd-big');
+    big.innerHTML = cfg ? `${fmt(cfg.r.recall,3)}<span class="u">two-layer recall under this rule, where BPTT reaches 1.000 and chance is 0.016. ${cfg.note}</span>` : `n/a<span class="u">this combination of credit paths was not measured</span>`;
+  }
+  for (const c of [depth, transport, time]) c.addEventListener('change', draw);
+  draw();
+})();
+
+/* ---------- developmental-lm: dot plots ---------- */
+(function dev(){
+  const C = COL(); const box = $('#dv-vis'); const W = 440, H = 236;
+  const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'Dot plots: cross-entropy at birth, and after environment shift for copying versus compressed rebirth'});
+  function dots(y0, title, items, d0, d1, colourOf){
+    const xs = linScale(d0, d1, 16, W-16);
+    svg.appendChild(txt(16, y0, title, {class:'cap'}));
+    svg.appendChild(el('line',{x1:16,x2:W-16,y1:y0+32,y2:y0+32,stroke:C.rule}));
+    for (const v of xs.ticks(4)){ svg.appendChild(el('line',{x1:xs(v),x2:xs(v),y1:y0+29,y2:y0+35,stroke:C.ink3})); svg.appendChild(txt(xs(v), y0+50, fmt(v, d1-d0>3?0:1), {'text-anchor':'middle'})); }
+    for (const it of items){ const x = xs(it.v); const c = el('circle',{cx:x, cy:y0+32, r:6, fill:colourOf(it), stroke:C.card, 'stroke-width':1.5}); bindTip(c, `${it.name}: ${fmt(it.v,3)} nats`); svg.appendChild(c);
+      if (it.short) svg.appendChild(txt(x + (it.anchor==='start'?8:it.anchor==='end'?-8:0), it.up ? y0+20 : y0+66, it.short, {'text-anchor':it.anchor||'middle', fill:colourOf(it)})); }
+  }
+  const b = DATA.dev.birth, s = DATA.dev.shift;
+  dots(14, 'at birth, before any training: 13M model on TinyStories, nats', [
+    {name:'trained adult', short:'adult 1.86', v:b[3].ce, up:true, anchor:'start'}, {name:'decoded newborn, seed 0', short:'newborn 2.86', v:b[1].ce, up:false, anchor:'start'}, {name:'decoded newborn, seed 1', v:b[2].ce}, {name:'null', short:'null 9.01', v:b[0].ce, up:true, anchor:'end'}], 0, 10, it=>it.name.includes('newborn')?C.blue:C.grey);
+  dots(124, 'after a three-environment life: union cross-entropy, nats', [
+    {name:'copy weights', short:'copy 4.08', v:s[0].ce, up:true, anchor:'start'}, {name:'rebirth at ratio 2', short:'c2', v:s[1].ce, up:false}, {name:'rebirth at ratio 8', short:'c8', v:s[2].ce, up:true}, {name:'rebirth at ratio 4', short:'c4', v:s[3].ce, up:false}, {name:'rebirth at ratio 16', short:'c16', v:s[4].ce, up:false}, {name:'from scratch', short:'scratch 4.74', v:s[5].ce, up:true, anchor:'end'}], 3.9, 4.9, it=>it.name==='copy weights'?C.blue:it.name==='from scratch'?C.grey:C.orange);
+  svg.appendChild(txt(16, 228, 'blue is copying the weights; orange is rebirth from a genome compressed by c', {fill:C.ink3}));
+  box.appendChild(svg);
+})();
+
+
+/* ---------- FlyBrain-LLM: the controls decide ---------- */
+(function fly(){
+  const F = DATA.fly_rung1b; const rows = F.P128.concat(F.P64_extra).map(r=>({label:r.label, value:r.acc, colour: r.role==='hypothesis'?'blue': r.role==='baseline'?'orange':'grey', bold:r.role==='hypothesis', dec:3, tip:`${r.label}\n${fmt(r.acc,4)} ± ${fmt(r.sd,4)} over 5 seeds`}));
+  barChart($('#fb-vis'), {title:'recall at 128 stored pairs, 5 seeds per arm', aria:'Recall of the sparse address, the Gated DeltaNet baseline and each control', width:440, rowH:26, labelW:215, right:52, xDomain:[0,1.05], xTicks:5, xFmt:v=>fmt(v,2), rows});
+})();
+
+/* ---------- the finding ---------- */
+(function finding(){
+  const C = COL(); const box = $('#chain'); const W = 860, H = 132;
+  const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'A mechanism feeds a loss, the loss yields a gradient, the gradient updates weights; the chain was cut in three places across sixteen instances'});
+  svg.appendChild(el('defs',{},[el('marker',{id:'ch-a',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:7,markerHeight:7,orient:'auto-start-reverse'},[el('path',{d:'M0 0L10 5L0 10z',fill:C.ink})])]));
+  const boxes = [['new mechanism',10,170],['loss term',265,130],['gradient',485,130],['weight update',705,145]];
+  for (const [t,x,w] of boxes){ svg.appendChild(el('rect',{x,y:30,width:w,height:40,fill:C.card,stroke:C.ink,'stroke-width':1.3})); const tt = txt(x+w/2, 55, t, {'text-anchor':'middle', fill:C.ink}); tt.setAttribute('font-size','15'); tt.setAttribute('font-weight','700'); svg.appendChild(tt); }
+  for (const [x1,x2] of [[180,263],[395,483],[615,703]]) svg.appendChild(el('line',{x1,y1:50,x2,y2:50,stroke:C.ink,'stroke-width':1.3,'marker-end':'url(#ch-a)'}));
+  const cuts = [[221,C.blue,'never read, or behind a flag','5 of 16'],[439,C.grey,'cancelled or negligible','6 of 16'],[659,C.orange,'detached, zero by construction','5 of 16']];
+  for (const [x,col,a,b] of cuts){ svg.appendChild(el('path',{d:`M${x-7} 36 L${x+7} 64 M${x+7} 36 L${x-7} 64`,stroke:col,'stroke-width':3,'stroke-linecap':'round',fill:'none'})); svg.appendChild(txt(x, 96, a, {'text-anchor':'middle', fill:C.ink})); svg.appendChild(txt(x, 112, b, {'text-anchor':'middle', fill:C.ink3})); }
+  box.appendChild(svg);
+  const cuts2 = $('#cuts'); const cls = {detached:'detached', flag:'flag', negligible:'neg', noop:'neg'};
+  for (const r of DATA.inert){ const d = document.createElement('div'); d.innerHTML = `<div class="p">${r.programme}</div><div class="m">${r.mechanism}</div><div class="h ${cls[r.cut]}">${r.how}</div>`; cuts2.appendChild(d); }
+  const cb = $('#cuts-btn'), ck = $('#cutkey'); cb.addEventListener('click', ()=>{ const open = cuts2.hidden; cuts2.hidden = !open; ck.hidden = !open; cb.setAttribute('aria-expanded', open?'true':'false'); cb.textContent = open ? 'Hide the sixteen' : 'Show all sixteen'; });
+  (function shareThenNow(){
+    // parameter share of the mechanism in the original programme (grey) and, for the six rebuilt in the null-arm
+    // experiments, its share when it is the whole model (blue); log scale
+    const box = $('#share'); box.innerHTML = '';
+    const LB = (DATA.loadbearing && DATA.loadbearing.experiments) || {};
+    const NOW = [['DRN — Kuramoto','e4_kuramoto'],['DPNCA-LM','e1_nca'],['Chaotic Reservoir LM — reservoir','e2_reservoir'],['DRN — genome','e3_genome'],['NCALM v13','e5_morphogen'],['APCN-LM','e6_predcode']];
+    const rows = DATA.share.map(r => { const hit = NOW.find(([k]) => r.label.startsWith(k)); const ex = hit && LB[hit[1]]; const me = ex && ex.arms[ex.mechanism];
+      const now = me ? (me.fixed_mechanism_params ? me.share : me.share) * 100 : null;
+      return {label: r.label.replace(' — ', ', '), then: r.pct, now, fixed: !!(me && me.fixed_mechanism_params), exp: hit && hit[1], mech: ex && ex.mechanism}; });
+    const W = 520, rowH = 26, m = {t:8, r:62, b:30, l:215};
+    const H = m.t + rows.length*rowH + m.b;
+    const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'Parameter share of the novel component in nine models as built, and in the six rebuilt with the mechanism as the whole model; log scale'});
+    const xs = logScale(1e-5, 100, m.l, W-m.r);
+    const pf = v => v >= 10 ? (Math.round(v) + '%') : v >= 1 ? ((+v.toFixed(1)) + '%') : v >= 0.01 ? (v + '%') : (v.toExponential(1) + '%');
+    const grid = el('g',{class:'grid'}); for (const v of [1e-5,1e-3,1e-1,10]){ grid.appendChild(el('line',{x1:xs(v),x2:xs(v),y1:m.t,y2:H-m.b})); svg.appendChild(txt(xs(v), H-m.b+15, v>=1? v+'%' : v.toFixed(-Math.floor(Math.log10(v)))+'%', {'text-anchor':'middle'})); } svg.appendChild(grid);
+    rows.forEach((r,i)=>{ const y = m.t + i*rowH + rowH/2;
+      svg.appendChild(txt(m.l-10, y+4, r.label, {'text-anchor':'end', fill: r.now!=null ? C.ink : C.ink2}));
+      const xt = xs(r.then);
+      if (r.now != null){ const xn = xs(r.now); svg.appendChild(el('line',{x1:xt,x2:xn,y1:y,y2:y,stroke:C.ink3,'stroke-width':1.5,'stroke-opacity':.6}));
+        const left = xn < xt;   // label each dot on its outer side
+        svg.appendChild(txt(left ? xt+9 : xt-9, y+4, pf(r.then), {'text-anchor': left ? 'start' : 'end', fill:C.ink3}));
+        const g = el('circle',{cx:xt,cy:y,r:4.5,fill:C.grey}); svg.appendChild(g);
+        const b = el('circle',{cx:xn,cy:y,r:6,fill:C.blue,stroke:C.paper,'stroke-width':1.5}); svg.appendChild(b);
+        svg.appendChild(txt(left ? xn-10 : xn+10, y+4, pf(r.now) + (r.fixed ? ', fixed' : ''), {'text-anchor': left ? 'end' : 'start', fill:C.ink}));
+        const tip = `${r.label}\nin the programme: ${pf(r.then)} of the parameters\nrebuilt as the whole model (${r.mech}): ${pf(r.now)} of the ${r.fixed ? 'parameters, none of them trained' : 'trainable parameters'}` + (r.exp==='e6_predcode' ? '\nthe rest is the readout; the mechanism is the only thing that crosses positions' : '');
+        bindTip(b, tip); bindTip(g, tip);
+      } else { const g = el('circle',{cx:xt,cy:y,r:4.5,fill:C.grey}); svg.appendChild(g); svg.appendChild(txt(xt+9, y+4, pf(r.then), {fill:C.ink2})); bindTip(g, `${r.label}\n${pf(r.then)} of the parameters; not rebuilt`); }
+    });
+    box.appendChild(svg);
+  })();
+  barChart($('#spectrum'), {aria:'Recall under five credit-assignment rules ordered by locality', width:520, rowH:26, labelW:215, right:60, xDomain:[0,1.05], xTicks:5, xFmt:v=>fmt(v,2),
+    rows:[{label:'BPTT, the exact gradient',value:1.000,colour:'grey'},{label:'L1, depth credit and reverse sweep',value:0.998,colour:'blue'},{label:'L1-FA, random feedback',value:0.997,colour:'blue'},{label:'L0, pure local',value:0.261,colour:'orange'},{label:'L1-VF cyclic, no backward pass',value:0.012,colour:'orange'}].map(r=>Object.assign(r,{dec:3}))});
+})();
+
+
+/* ---------- the null arm, run ---------- */
+(function nullarm(){
+  const S = DATA.loadbearing; const C = COL();
+  const status = $('#lb-status'); const box = $('#lb-chart'); const tb = $('#lb-table tbody');
+  const META = {
+    e1_nca:       {name:'a shared cellular-automaton rule as the whole model', short:'cellular-automaton rule', before:'0.083%', lineage:'DPNCA-LM, NCALM'},
+    e2_reservoir: {name:'a fixed random reservoir as the only sequence operator', short:'fixed random reservoir', before:'0.2%', lineage:'Chaotic Reservoir LM'},
+    e3_genome:    {name:'every weight emitted by a small genome', short:'genome-made weights', before:'0.26%', lineage:'DRN'},
+    e4_kuramoto:  {name:'coupled oscillators as the recurrence', short:'coupled oscillators', before:'0.0016%', lineage:'DRN'},
+    e5_morphogen: {name:'a morphogen field as the only cross-position operator', short:'morphogen field', before:'0.39%', lineage:'NCALM v13'},
+    e6_predcode:  {name:'hierarchical predictive coding as the whole model', short:'predictive coding', before:'about 30%', lineage:'APCN-LM'},
+  };
+  if (!S || !S.experiments || !Object.keys(S.experiments).length){ status.textContent = 'Runs in progress.'; return; }
+  const order = Object.keys(META).filter(k => S.experiments[k]);
+  const floors = ((S.floors||{}).at_budget||{})['8000000'] || {};
+  const tuned = (ex, arm) => (ex.tuned && ex.tuned[arm]) ? ex.tuned[arm] : null;
+
+  /* the ladder: one row per mechanism, its null arm and the incumbent on the same scale, n-gram floors as rungs */
+  const W = 820, rowH = 50, m = {t:46, r:34, b:30, l:168};
+  const H = m.t + order.length*rowH + m.b;
+  const svg = el('svg',{viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'Bits per byte of each mechanism as the whole model, its null arm and the incumbent, against n-gram floors'});
+  const xs = linScale(1.0, 4.6, m.l, W-m.r);
+  const grid = el('g',{class:'grid'}); for (const v of [1,2,3,4]){ grid.appendChild(el('line',{x1:xs(v),x2:xs(v),y1:m.t-4,y2:H-m.b})); svg.appendChild(txt(xs(v), H-m.b+14, String(v), {'text-anchor':'middle'})); } svg.appendChild(grid);
+  ['5-gram','4-gram','trigram','bigram','unigram'].filter(n => floors[n]!=null).forEach((name,i)=>{ const v = floors[name]; svg.appendChild(el('line',{x1:xs(v),x2:xs(v),y1:m.t-4,y2:H-m.b,stroke:C.ink3,'stroke-dasharray':'3 4'})); svg.appendChild(txt(xs(v), m.t-10-(i%2)*13, name, {'text-anchor':'middle', fill:C.ink3})); });
+  svg.appendChild(txt(m.l-8, m.t-10, 'n-gram floors', {'text-anchor':'end', fill:C.ink3}));
+  const marks = [];
+  order.forEach((k,i)=>{ const ex = S.experiments[k]; const a = ex.arms; const y = m.t + i*rowH + rowH/2;
+    const me = a[ex.mechanism], nu = a[ex.null], inc = a[ex.incumbent]; if (!me || !nu || !inc) return;
+    const lab = txt(m.l-14, y-2, META[k].short, {'text-anchor':'end', class:'lbl'}); svg.appendChild(lab);
+    svg.appendChild(txt(m.l-14, y+13, META[k].lineage, {'text-anchor':'end', fill:C.ink3}));
+    const link = el('line',{y1:y,y2:y,stroke:C.ink3,'stroke-opacity':.55,'stroke-width':1.5}); svg.appendChild(link);
+    const mk = (col, r, above, tipf) => { const g = el('g',{class:'mark'}); g.appendChild(el('circle',{r:r+2, fill:C.paper})); const c = el('circle',{r, fill:col}); g.appendChild(c); const t = txt(0, above ? -r-6 : r+15, '', {'text-anchor':'middle', fill:C.ink}); g.appendChild(t); const hit = el('circle',{r:14, fill:'transparent'}); g.appendChild(hit); bindTip(hit, tipf); svg.appendChild(g); return {g, t}; };
+    const nM = mk(C.orange, 5, true, () => `${ex.null}: ${nu.role}\n${fmt(nu.bpb,3)} bits/byte, seeds ${nu.values.map(v=>fmt(v,3)).join(' and ')}\n${nu.level}`);
+    const iM = mk(C.grey, 5, false, () => { const t = tuned(ex, ex.incumbent); return `${ex.incumbent}: ${inc.role}\n${fmt(inc.bpb,3)} bits/byte at the default rate, seeds ${inc.values.map(v=>fmt(v,3)).join(' and ')}` + (t ? `\n${fmt(t[1],3)} at its best rate (${t[0]}, one seed)` : ''); });
+    const mM = mk(C.blue, 7, true, () => { const t = tuned(ex, ex.mechanism); return `${ex.mechanism}: ${me.role}\n${fmt(me.bpb,3)} bits/byte at the default rate, seeds ${me.values.map(v=>fmt(v,3)).join(' and ')}` + (t ? `\n${fmt(t[1],3)} at its best rate (${t[0]}, one seed)` : '') + `\n${me.trainable_params.toLocaleString()} trainable parameters, ${(me.share*100).toFixed(0)}% in the mechanism`; });
+    marks.push({ex, y, link, nM, iM, mM, nu, inc, me});
+  });
+  const place = best => { for (const r of marks){ const tm = tuned(r.ex, r.ex.mechanism), ti = tuned(r.ex, r.ex.incumbent);
+      const mv = (best && tm) ? tm[1] : r.me.bpb, iv = (best && ti) ? ti[1] : r.inc.bpb, nv = r.nu.bpb;
+      r.link.setAttribute('x1', xs(Math.min(mv, nv))); r.link.setAttribute('x2', xs(Math.max(mv, nv)));
+      for (const [M, v] of [[r.nM, nv],[r.iM, iv],[r.mM, mv]]){ M.g.style.transform = `translate(${xs(v)}px, ${r.y}px)`; M.t.textContent = fmt(v,2); }
+    } };
+  place(false);
+  svg.appendChild(txt(W-m.r, H-4, 'bits per byte on the same held-out bytes, lower is better', {'text-anchor':'end'}));
+  box.appendChild(svg);
+  const sw = $('#lb-best'); sw.addEventListener('change', () => place(sw.checked));
+
+  /* the budget check: three times the bytes, each at its best rate */
+  const bb = $('#lb-budget'); const B = [];
+  for (const [k, arm, col, name] of [['e1_nca','transformer',C.grey,'transformer'],['e1_nca','nca_shared6',C.blue,'cellular automaton'],['e5_morphogen','morphogen',C.aqua,'morphogen field']]){
+    const ex = S.experiments[k]; const d = ex && ex.budget_check && ex.budget_check[arm]; if (d && d['24m']!=null) B.push({name, col, a:d.main_budget, b:d['24m'], lr:d.lr});
+  }
+  if (B.length){
+    const f8 = floors['5-gram'], f24 = (((S.floors||{}).at_budget||{})['24000000']||{})['5-gram'];
+    const W2 = 400, H2 = 250, m2 = {t:34, r:160, b:34, l:14};
+    const sv = el('svg',{viewBox:`0 0 ${W2} ${H2}`, role:'img', 'aria-label':'Bits per byte at eight and twenty-four million training bytes for the two headline mechanisms and the transformer'});
+    const vals = B.flatMap(r => [r.a, r.b]).concat([f8, f24].filter(v => v!=null));
+    const lo = Math.floor((Math.min(...vals)-0.04)*10)/10, hi = Math.ceil((Math.max(...vals)+0.04)*10)/10;
+    const ys = linScale(lo, hi, H2-m2.b, m2.t); const x8 = m2.l+30, x24 = W2-m2.r-10;
+    const g2 = el('g',{class:'grid'}); for (const v of ys.ticks(4)){ g2.appendChild(el('line',{x1:m2.l,x2:W2-m2.r,y1:ys(v),y2:ys(v)})); } sv.appendChild(g2);
+    if (f8!=null && f24!=null){ sv.appendChild(el('line',{x1:x8,x2:x24,y1:ys(f8),y2:ys(f24),stroke:C.ink3,'stroke-dasharray':'3 4'})); sv.appendChild(txt(x24+8, ys(f24)+4, '5-gram floor', {fill:C.ink3})); }
+    const ends = B.map(r => ({r, y: ys(r.b)})).sort((p,q)=>p.y-q.y); for (let i=1;i<ends.length;i++){ if (ends[i].y - ends[i-1].y < 15) ends[i].y = ends[i-1].y + 15; }
+    for (const {r, y} of ends){
+      sv.appendChild(el('line',{x1:x8,x2:x24,y1:ys(r.a),y2:ys(r.b),stroke:r.col,'stroke-width':2.5}));
+      for (const [x,v] of [[x8,r.a],[x24,r.b]]){ sv.appendChild(el('circle',{cx:x,cy:ys(v),r:6,fill:C.paper})); const c = el('circle',{cx:x,cy:ys(v),r:4.5,fill:r.col}); sv.appendChild(c); bindTip(c, `${r.name}, learning rate ${r.lr}\n${fmt(r.a,3)} at 8,000,000 bytes\n${fmt(r.b,3)} at 24,000,000 bytes`); }
+      sv.appendChild(txt(x8-9, ys(r.a)+4, fmt(r.a,2), {'text-anchor':'end', fill:C.ink}));
+      sv.appendChild(txt(x24+9, y+4, `${fmt(r.b,2)}  ${r.name}`, {fill:C.ink}));
+    }
+    sv.appendChild(txt(x8, H2-m2.b+18, '8M bytes', {'text-anchor':'middle'})); sv.appendChild(txt(x24, H2-m2.b+18, '24M bytes', {'text-anchor':'middle'}));
+    sv.appendChild(txt(m2.l, 14, 'Three times the bytes: the transformer catches up', {fill:C.ink, class:'lbl'}));
+    bb.appendChild(sv);
+  }
+
+  /* the table */
+  for (const k of order){ const ex = S.experiments[k]; const a = ex.arms; const g = arm => a[arm] ? fmt(a[arm].bpb,3) : '—';
+    const mech = a[ex.mechanism];
+    const shareNow = mech ? (mech.fixed_mechanism_params ? `${(mech.share*100).toFixed(0)}%, fixed` : `${(mech.share*100).toFixed(0)}%`) : '—';
+    const tm = tuned(ex, ex.mechanism), ti = tuned(ex, ex.incumbent);
+    const best = (tm && ti) ? `${fmt(tm[1],2)} / ${fmt(ti[1],2)}` : '—';
+    let reading = ex.reading || 'running';
+    if (reading.startsWith('carries')){ const d = (ex.mechanism_vs_incumbent_tuned != null) ? ex.mechanism_vs_incumbent_tuned : ex.mechanism_vs_incumbent; reading = 'carries the model' + (d < -0.1 ? `, ${fmt(-d,2)} ahead` : d > 0.1 ? `, ${fmt(d,2)} behind` : ', level'); }
+    const tr = document.createElement('tr'); tr.innerHTML = `<td>${META[k].name} <span class="muted">(${META[k].lineage})</span></td><td class="n">${shareNow}<br><span class="muted">was ${META[k].before}</span></td><td class="n"><b>${g(ex.mechanism)}</b></td><td class="n">${g(ex.null)}</td><td class="n">${g(ex.incumbent)}</td><td class="n">${best}</td><td>${reading}</td>`;
+    tr.title = [ex.level ? `mechanism ${ex.level}` : '', (tm && ti) ? `best learning rates (one seed): mechanism ${fmt(tm[1],3)} at ${tm[0]}, incumbent ${fmt(ti[1],3)} at ${ti[0]}` : ''].filter(Boolean).join('\n'); tb.appendChild(tr); }
+  const btn = $('#lb-btn'), wrap = $('#lb-tblwrap'); btn.addEventListener('click', ()=>{ const open = wrap.hidden; wrap.hidden = !open; btn.setAttribute('aria-expanded', open?'true':'false'); btn.textContent = open ? 'Hide the numbers' : 'Show the numbers'; });
+  const done = order.filter(k => S.experiments[k].reading).length; status.textContent = done < 6 ? `${done} of 6 experiments complete; the rest are running.` : 'All six complete, two seeds each. Every number is a run record in the repository.';
+})();
+
+/* ---------- repos ---------- */
+(function repos(){
+  const list = $('#repo-list');
+  const R = [['DPNCA-LM','attention-free NCA language model: code, log, weights, 107 tests'],['NCALM','matched harness, GPT-2 baseline, fifteen variants, every run'],['WaveLM','complex-valued byte model: ladder, ablations, 43 tests'],['HDC-LM','backprop-free credit assignment: experiments S3 to S8, 95 tests'],['developmental-lm','six pre-registered programmes: protocols, registers, runs'],['FlyBrain-LLM','connectome principles, hash-locked pre-registrations, per-run tables, 124 tests'],['post-transformer-research','this write-up: score matrix, data, figures and site']];
+  for (const [n,d] of R){ const a = document.createElement('a'); a.href = 'https://github.com/Peterpetu/'+n; a.innerHTML = `<span class="n">Peterpetu/${n}</span><span class="d">${d}</span>`; list.appendChild(a); }
+})();
+})();
+</script>
+
+</body>
+</html>

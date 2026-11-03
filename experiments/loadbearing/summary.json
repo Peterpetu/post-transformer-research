@@ -1,0 +1,1117 @@
+{
+ "floors": {
+  "eval_bytes": 262144,
+  "smoothing": "Witten-Bell interpolation",
+  "at_budget": {
+   "6000000": {
+    "unigram": 4.390338004280385,
+    "bigram": 3.318003164181081,
+    "trigram": 2.399856674105256,
+    "4-gram": 1.8250366768908042,
+    "5-gram": 1.546986570324024,
+    "train_bytes": 6000000
+   },
+   "8000000": {
+    "unigram": 4.389808725228226,
+    "bigram": 3.316889384108963,
+    "trigram": 2.397296718008632,
+    "4-gram": 1.8195339302562967,
+    "5-gram": 1.5374041941303025,
+    "train_bytes": 8000000
+   },
+   "24000000": {
+    "unigram": 4.38693001547229,
+    "bigram": 3.3127374961456653,
+    "trigram": 2.3887047252914275,
+    "4-gram": 1.805225624311324,
+    "5-gram": 1.5155571974672348,
+    "train_bytes": 24000000
+   }
+  },
+  "full_slice": {
+   "unigram": 4.387337157071171,
+   "bigram": 3.313605223294011,
+   "trigram": 2.3899258082422223,
+   "4-gram": 1.8052767860534182,
+   "5-gram": 1.5126357978122487,
+   "train_bytes": 60000000
+  }
+ },
+ "experiments": {
+  "e1_nca": {
+   "title": "E1. A language model that is nothing but a cellular automaton",
+   "lineage": "DPNCA-LM, NCALM",
+   "old_share": "0.083% (DPNCA-LM's cross-position mixing)",
+   "crosses": "the rule's depthwise perception (kernels 3, 5, 7), iterated",
+   "budget_bytes": 8000000,
+   "ctx": 256,
+   "floors": {
+    "unigram": 4.389808725228226,
+    "bigram": 3.316889384108963,
+    "trigram": 2.397296718008632,
+    "4-gram": 1.8195339302562967,
+    "5-gram": 1.5374041941303025,
+    "train_bytes": 8000000
+   },
+   "arms": {
+    "nca_shared6": {
+     "bpb": 1.4317012568491854,
+     "sd": 0.0017129124426287742,
+     "values": [
+      1.4304900448454236,
+      1.4329124688529469
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "one rule, iterated 6 times, weights shared (the mechanism)",
+     "trainable_params": 199814,
+     "share": 0.6707337824176484,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "below the 5-gram floor (1.54)",
+     "curve": [
+      1.6966539639607117,
+      1.5373060346669127,
+      1.4606382595763723,
+      1.4304900448454236
+     ]
+    },
+    "nca_shared1": {
+     "bpb": 1.6110332396440854,
+     "sd": 0.004629422833703142,
+     "values": [
+      1.607759743365394,
+      1.6143067359227767
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "the rule applied once",
+     "trainable_params": 199809,
+     "share": 0.6707255428934633,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the 4-gram (1.82) and 5-gram (1.54) floors",
+     "curve": [
+      1.83215824541118,
+      1.6897206983694912,
+      1.6313698333943951,
+      1.607759743365394
+     ]
+    },
+    "nca_unshared6": {
+     "bpb": 1.2663820415473093,
+     "sd": 0.0005077867673186024,
+     "values": [
+      1.266741101013877,
+      1.2660229820807414
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "6 separate rules: a plain causal CNN",
+     "trainable_params": 869894,
+     "share": 0.9243677965361297,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "below the 5-gram floor (1.54)",
+     "curve": [
+      1.5443299404895958,
+      1.3839634063248571,
+      1.3010900296133545,
+      1.266741101013877
+     ]
+    },
+    "nca_local6": {
+     "bpb": 3.3174768430528725,
+     "sd": 0.00031801040802622004,
+     "values": [
+      3.3172519757368693,
+      3.3177017103688757
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "perception reduced to the centre tap: nothing crosses positions (the null arm)",
+     "trainable_params": 199814,
+     "share": 0.6707337824176484,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the unigram (4.39) and bigram (3.32) floors",
+     "curve": [
+      3.3341453370810017,
+      3.3250884942104215,
+      3.321733349168233,
+      3.3172519757368693
+     ]
+    },
+    "transformer": {
+     "bpb": 1.8336048344832498,
+     "sd": 0.03527680943526084,
+     "values": [
+      1.8585493056535483,
+      1.8086603633129512
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "2-layer transformer, d = 128 (the incumbent)",
+     "trainable_params": 495360,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the trigram (2.40) and 4-gram (1.82) floors",
+     "curve": [
+      2.8942339133864983,
+      2.1725781892827545,
+      1.9337983367380853,
+      1.8585493056535483
+     ]
+    },
+    "transformer_s": {
+     "bpb": 2.3030865467083093,
+     "sd": 0.0072946601587129765,
+     "values": [
+      2.3082446503729863,
+      2.2979284430436318
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "1-layer transformer, d = 96 (a smaller incumbent)",
+     "trainable_params": 186016,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the trigram (2.40) and 4-gram (1.82) floors",
+     "curve": [
+      3.221892260862847,
+      2.5817763062512373,
+      2.3964815962723693,
+      2.3082446503729863
+     ]
+    }
+   },
+   "lr_check": {
+    "nca_shared6": {
+     "0.001": 1.5422113614560267,
+     "0.004": 1.3851461578871298,
+     "0.008": 1.365773903106955,
+     "0.016": 1.3742684863217443,
+     "0.002": 1.4304900448454236
+    },
+    "transformer": {
+     "0.001": 2.4212625011927815,
+     "0.004": 1.575696233094196,
+     "0.008": 1.4949766864852316,
+     "0.016": 1.5047492620296667,
+     "0.032": 1.5420270712967115,
+     "0.002": 1.8585493056535483
+    },
+    "transformer_s": {
+     "0.001": 2.911457481420287,
+     "0.004": 1.8929711387736183,
+     "0.008": 1.6759910116325585,
+     "0.016": 1.6136539220268484,
+     "0.032": 1.6303600910044325,
+     "0.002": 2.3082446503729863
+    }
+   },
+   "budget_check": {
+    "nca_shared6": {
+     "lr": 0.008,
+     "main_budget": 1.365773903106955,
+     "24m": 1.2788279825974789
+    },
+    "transformer": {
+     "lr": 0.008,
+     "main_budget": 1.4949766864852316,
+     "24m": 1.235225145881821
+    }
+   },
+   "mechanism": "nca_shared6",
+   "null": "nca_local6",
+   "incumbent": "transformer",
+   "tuned": {
+    "nca_shared6": [
+     "0.008",
+     1.365773903106955
+    ],
+    "transformer": [
+     "0.008",
+     1.4949766864852316
+    ],
+    "transformer_s": [
+     "0.016",
+     1.6136539220268484
+    ]
+   },
+   "mechanism_vs_null": 1.8857755862036871,
+   "mechanism_vs_incumbent": -0.4019035776340645,
+   "mechanism_vs_incumbent_tuned": -0.12920278337827673,
+   "reading": "carries the model, 0.13 bits/byte ahead of the incumbent at each one's best learning rate",
+   "level": "below the 5-gram floor (1.54)",
+   "reading_short": "carries the model, 0.13 ahead of the incumbent at best rates"
+  },
+  "e2_reservoir": {
+   "title": "E2. A fixed random reservoir as the only sequence operator",
+   "lineage": "Chaotic Reservoir LM",
+   "old_share": "0.202% of parameters, 0% of trainable ones (the reservoir)",
+   "crosses": "the fixed reservoir matrix W_res, recurring over positions",
+   "budget_bytes": 6000000,
+   "ctx": 64,
+   "floors": {
+    "unigram": 4.390338004280385,
+    "bigram": 3.318003164181081,
+    "trigram": 2.399856674105256,
+    "4-gram": 1.8250366768908042,
+    "5-gram": 1.546986570324024,
+    "train_bytes": 6000000
+   },
+   "arms": {
+    "reservoir_r0.9": {
+     "bpb": 1.8893586216944136,
+     "sd": 0.009066371084049379,
+     "values": [
+      1.8829477292201287,
+      1.8957695141686985
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "fixed random reservoir, spectral radius 0.9 (the mechanism)",
+     "trainable_params": 197120,
+     "share": 0.24951267056530213,
+     "fixed_mechanism_params": 65536,
+     "seeds_disagree": false,
+     "level": "between the trigram (2.40) and 4-gram (1.83) floors",
+     "curve": [
+      2.121402437814426,
+      1.9765323627844757,
+      1.9077409631468245,
+      1.8829477292201287
+     ]
+    },
+    "reservoir_r2.1": {
+     "bpb": 1.7273848626308559,
+     "sd": 0.004961142880196524,
+     "values": [
+      1.7238768048578335,
+      1.730892920403878
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "spectral radius 2.1, the original project's setting",
+     "trainable_params": 197120,
+     "share": 0.24951267056530213,
+     "fixed_mechanism_params": 65536,
+     "seeds_disagree": false,
+     "level": "between the 4-gram (1.83) and 5-gram (1.55) floors",
+     "curve": [
+      2.0246078233141342,
+      1.8127516155986638,
+      1.7500705580039995,
+      1.7238768048578335
+     ]
+    },
+    "reservoir_r0": {
+     "bpb": 3.31687202575268,
+     "sd": 3.805255993752801e-05,
+     "values": [
+      3.316898932975853,
+      3.3168451185295065
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "no recurrence: h_t = tanh(u_t) (the null arm)",
+     "trainable_params": 197120,
+     "share": 0.24951267056530213,
+     "fixed_mechanism_params": 65536,
+     "seeds_disagree": false,
+     "level": "between the bigram (3.32) and trigram (2.40) floors",
+     "curve": [
+      3.335152349246382,
+      3.325296673834833,
+      3.3210691629195166,
+      3.316898932975853
+     ]
+    },
+    "gru": {
+     "bpb": 1.5627315453425181,
+     "sd": 0.005367620834690702,
+     "values": [
+      1.566527026433566,
+      1.55893606425147
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "a trained GRU with the same state size (the incumbent)",
+     "trainable_params": 395008,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the 4-gram (1.83) and 5-gram (1.55) floors",
+     "curve": [
+      1.879709196476912,
+      1.6650182067889565,
+      1.5928737608349033,
+      1.566527026433566
+     ]
+    }
+   },
+   "lr_check": {
+    "gru": {
+     "0.001": 1.685750720724926,
+     "0.004": 1.485781197382152,
+     "0.008": 1.4739848589893514,
+     "0.016": 1.5337250172851051,
+     "0.002": 1.566527026433566
+    },
+    "reservoir_r0.9": {
+     "0.001": 1.9943525923786862,
+     "0.004": 1.7824546600597793,
+     "0.008": 1.7027193137298953,
+     "0.016": 1.6759697395284299,
+     "0.032": 1.7385391750082264,
+     "0.002": 1.8829477292201287
+    }
+   },
+   "budget_check": {},
+   "mechanism": "reservoir_r0.9",
+   "null": "reservoir_r0",
+   "incumbent": "gru",
+   "tuned": {
+    "gru": [
+     "0.008",
+     1.4739848589893514
+    ],
+    "reservoir_r0.9": [
+     "0.016",
+     1.6759697395284299
+    ]
+   },
+   "mechanism_vs_null": 1.4275134040582664,
+   "mechanism_vs_incumbent": 0.3266270763518955,
+   "mechanism_vs_incumbent_tuned": 0.20198488053907848,
+   "reading": "carries the model, 0.20 bits/byte behind the incumbent at each one's best learning rate",
+   "level": "between the trigram (2.40) and 4-gram (1.83) floors",
+   "reading_short": "carries the model, 0.20 behind the incumbent at best rates"
+  },
+  "e3_genome": {
+   "title": "E3. Every weight emitted by a small genome",
+   "lineage": "DRN",
+   "old_share": "0.26% (the weight generator)",
+   "crosses": "the phenotype (E1's cellular automaton, d = 64, 4 iterations); the genome only writes its weights",
+   "budget_bytes": 8000000,
+   "ctx": 256,
+   "floors": {
+    "unigram": 4.389808725228226,
+    "bigram": 3.316889384108963,
+    "trigram": 2.397296718008632,
+    "4-gram": 1.8195339302562967,
+    "5-gram": 1.5374041941303025,
+    "train_bytes": 8000000
+   },
+   "arms": {
+    "genome": {
+     "bpb": 3.42074262188489,
+     "sd": 0.001007022824574524,
+     "values": [
+      3.4200305492168237,
+      3.4214546945529563
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "13K-parameter genome emitting all 66K phenotype weights, trained end to end (the mechanism)",
+     "trainable_params": 13084,
+     "share": 0.9996942830938551,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the unigram (4.39) and bigram (3.32) floors",
+     "curve": [
+      3.638161734742277,
+      3.473397754679796,
+      3.4488742540431465,
+      3.4200305492168237
+     ]
+    },
+    "genome_h192": {
+     "bpb": 3.8929289762730805,
+     "sd": 0.703021580688675,
+     "values": [
+      4.3900403032985285,
+      3.395817649247633
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "a wider genome, 44K parameters for the same 66K weights",
+     "trainable_params": 44476,
+     "share": 0.9999100638546632,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": true,
+     "level": "between the unigram (4.39) and bigram (3.32) floors",
+     "curve": [
+      4.398591710656054,
+      4.39151099143955,
+      4.395766852619969,
+      4.3900403032985285
+     ]
+    },
+    "genome_frozen": {
+     "bpb": 3.8584352651538656,
+     "sd": 0.15740302136555342,
+     "values": [
+      3.9697360089406994,
+      3.7471345213670317
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "genome frozen at initialisation with a trained readout: a random-features probe",
+     "trainable_params": 16644,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the unigram (4.39) and bigram (3.32) floors",
+     "curve": [
+      4.091150235507183,
+      4.008041919745686,
+      3.9795709873151086,
+      3.9697360089406994
+     ]
+    },
+    "direct": {
+     "bpb": 1.6902719672590005,
+     "sd": 0.00024460351221553006,
+     "values": [
+      1.6900990064568109,
+      1.6904449280611902
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "the same phenotype with its 66K weights trained directly (the null arm: no genome)",
+     "trainable_params": 66500,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the 4-gram (1.82) and 5-gram (1.54) floors",
+     "curve": [
+      1.9359286750854072,
+      1.7803329289066872,
+      1.7115357947225214,
+      1.6900990064568109
+     ]
+    },
+    "direct_small": {
+     "bpb": 2.1916684623834666,
+     "sd": 0.015587777230675037,
+     "values": [
+      2.202690685366902,
+      2.1806462394000308
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "a directly trained phenotype with 17K parameters, about the genome's count (the incumbent at matched size)",
+     "trainable_params": 17260,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the trigram (2.40) and 4-gram (1.82) floors",
+     "curve": [
+      2.473408124635591,
+      2.2840269671363185,
+      2.2226584085778582,
+      2.202690685366902
+     ]
+    }
+   },
+   "lr_check": {
+    "direct": {
+     "0.001": 1.8143278688405686,
+     "0.004": 1.6080236722409744,
+     "0.008": 1.5652471691670498,
+     "0.016": 1.5550351618262865,
+     "0.032": 1.5518284109395035,
+     "0.002": 1.6900990064568109
+    },
+    "direct_small": {
+     "0.001": 2.3606440019703965,
+     "0.004": 2.0962104755478492,
+     "0.008": 2.0223108310908975,
+     "0.016": 1.9750293499667784,
+     "0.032": 1.96672963921879,
+     "0.002": 2.202690685366902
+    },
+    "genome_h192": {
+     "0.0005": 4.391486849374935,
+     "0.002": 4.3900403032985285
+    },
+    "genome": {
+     "0.0005": 3.939046070357364,
+     "0.001": 3.4269527004292324,
+     "0.004": 3.3875117256263825,
+     "0.008": 4.390112278037914,
+     "0.016": 4.388938947900234,
+     "0.002": 3.4200305492168237
+    }
+   },
+   "budget_check": {},
+   "mechanism": "genome",
+   "null": "direct",
+   "incumbent": "direct_small",
+   "tuned": {
+    "direct": [
+     "0.032",
+     1.5518284109395035
+    ],
+    "direct_small": [
+     "0.032",
+     1.96672963921879
+    ],
+    "genome_h192": [
+     "0.002",
+     4.3900403032985285
+    ],
+    "genome": [
+     "0.004",
+     3.3875117256263825
+    ]
+   },
+   "mechanism_vs_null": -1.7304706546258894,
+   "mechanism_vs_incumbent": 1.2290741595014234,
+   "mechanism_vs_incumbent_tuned": 1.4207820864075924,
+   "reading": "worse than its null arm",
+   "level": "between the unigram (4.39) and bigram (3.32) floors",
+   "reading_short": "worse than its null arm"
+  },
+  "e4_kuramoto": {
+   "title": "E4. Coupled oscillators as the recurrence",
+   "lineage": "DRN",
+   "old_share": "0.0016% (the Kuramoto term)",
+   "crosses": "the oscillator phases, carried from byte to byte and coupled through A",
+   "budget_bytes": 6000000,
+   "ctx": 64,
+   "floors": {
+    "unigram": 4.390338004280385,
+    "bigram": 3.318003164181081,
+    "trigram": 2.399856674105256,
+    "4-gram": 1.8250366768908042,
+    "5-gram": 1.546986570324024,
+    "train_bytes": 6000000
+   },
+   "arms": {
+    "kuramoto": {
+     "bpb": 2.0382127433559383,
+     "sd": 0.0011847464829940059,
+     "values": [
+      2.0390504856280502,
+      2.0373750010838263
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "trained coupling A, learned K (the mechanism)",
+     "trainable_params": 328193,
+     "share": 0.1996904260602755,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the trigram (2.40) and 4-gram (1.83) floors",
+     "curve": [
+      2.638074147142261,
+      2.1852275750599794,
+      2.0778230068626593,
+      2.0390504856280502
+     ]
+    },
+    "kuramoto_fixedA": {
+     "bpb": 3.9220683595846704,
+     "sd": 0.03701517639166775,
+     "values": [
+      3.948242041818035,
+      3.895894677351306
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "fixed random coupling, everything else trained",
+     "trainable_params": 262657,
+     "share": 3.8072467133942745e-06,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the unigram (4.39) and bigram (3.32) floors",
+     "curve": [
+      4.157487426593649,
+      4.02762263362208,
+      3.9697654717185755,
+      3.948242041818035
+     ]
+    },
+    "kuramoto_k0": {
+     "bpb": 3.9554498293412372,
+     "sd": 0.0021852042623976184,
+     "values": [
+      3.9569950020934566,
+      3.9539046565890184
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "coupling off: phases only accumulate the input (integration without interaction; cannot represent a bigram)",
+     "trainable_params": 262656,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the unigram (4.39) and bigram (3.32) floors",
+     "curve": [
+      4.157428398923198,
+      4.029449089374244,
+      3.9760533347912284,
+      3.9569950020934566
+     ]
+    },
+    "kuramoto_nomem": {
+     "bpb": 3.3184434903526494,
+     "sd": 0.00024219791245126815,
+     "values": [
+      3.318272230566366,
+      3.318614750138933
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "phases reset every byte: no memory at all (the null arm)",
+     "trainable_params": 262656,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the unigram (4.39) and bigram (3.32) floors",
+     "curve": [
+      3.336928156107866,
+      3.3289845891830674,
+      3.3203282240383944,
+      3.318272230566366
+     ]
+    },
+    "gru": {
+     "bpb": 1.5627315453425181,
+     "sd": 0.005367620834690702,
+     "values": [
+      1.566527026433566,
+      1.55893606425147
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "a trained GRU with the same state size (the incumbent)",
+     "trainable_params": 395008,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the 4-gram (1.83) and 5-gram (1.55) floors",
+     "curve": [
+      1.879709196476912,
+      1.6650182067889565,
+      1.5928737608349033,
+      1.566527026433566
+     ]
+    }
+   },
+   "lr_check": {
+    "gru": {
+     "0.001": 1.685750720724926,
+     "0.004": 1.485781197382152,
+     "0.008": 1.4739848589893514,
+     "0.016": 1.5337250172851051,
+     "0.002": 1.566527026433566
+    },
+    "kuramoto": {
+     "0.001": 2.3103998858962496,
+     "0.004": 1.887373533444661,
+     "0.008": 1.804381752052497,
+     "0.016": 1.7834824149451907,
+     "0.032": 1.8690337657600253,
+     "0.002": 2.0390504856280502
+    }
+   },
+   "budget_check": {},
+   "mechanism": "kuramoto",
+   "null": "kuramoto_nomem",
+   "incumbent": "gru",
+   "tuned": {
+    "gru": [
+     "0.008",
+     1.4739848589893514
+    ],
+    "kuramoto": [
+     "0.016",
+     1.7834824149451907
+    ]
+   },
+   "mechanism_vs_null": 1.2802307469967111,
+   "mechanism_vs_incumbent": 0.47548119801342015,
+   "mechanism_vs_incumbent_tuned": 0.3094975559558393,
+   "reading": "carries the model, 0.31 bits/byte behind the incumbent at each one's best learning rate",
+   "level": "between the trigram (2.40) and 4-gram (1.83) floors",
+   "reading_short": "carries the model, 0.31 behind the incumbent at best rates"
+  },
+  "e5_morphogen": {
+   "title": "E5. A morphogen field as the only thing that crosses positions",
+   "lineage": "NCALM v13",
+   "old_share": "0.39% (the morphogen field)",
+   "crosses": "causal diffusion along positions: 512 learned per-channel, per-step rates",
+   "budget_bytes": 8000000,
+   "ctx": 256,
+   "floors": {
+    "unigram": 4.389808725228226,
+    "bigram": 3.316889384108963,
+    "trigram": 2.397296718008632,
+    "4-gram": 1.8195339302562967,
+    "5-gram": 1.5374041941303025,
+    "train_bytes": 8000000
+   },
+   "arms": {
+    "morphogen": {
+     "bpb": 1.423608873874041,
+     "sd": 0.0038949966459322386,
+     "values": [
+      1.4263630524150785,
+      1.4208546953330035
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "learned diffusion, learned reaction (the mechanism)",
+     "trainable_params": 331264,
+     "share": 0.8006182380216383,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "below the 5-gram floor (1.54)",
+     "curve": [
+      1.801802813083773,
+      1.579555609770883,
+      1.4703606860547074,
+      1.4263630524150785
+     ]
+    },
+    "morphogen_nodiff": {
+     "bpb": 3.3175427339059844,
+     "sd": 0.00040490082352704677,
+     "values": [
+      3.3172564257879604,
+      3.3178290420240084
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "diffusion off: the reaction alone, so nothing crosses positions (the null arm)",
+     "trainable_params": 330752,
+     "share": 0.8003095975232198,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the unigram (4.39) and bigram (3.32) floors",
+     "curve": [
+      3.3335239422656033,
+      3.326330875382423,
+      3.322323765608645,
+      3.3172564257879604
+     ]
+    },
+    "morphogen_lin": {
+     "bpb": 2.833551033533654,
+     "sd": 0.0023140501619402366,
+     "values": [
+      2.835187314095168,
+      2.8319147529721405
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "diffusion only, no reaction: a linear model",
+     "trainable_params": 66560,
+     "share": 0.007692307692307693,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the bigram (3.32) and trigram (2.40) floors",
+     "curve": [
+      3.1413395857953397,
+      2.912559976203643,
+      2.8548351065798565,
+      2.835187314095168
+     ]
+    },
+    "transformer_s": {
+     "bpb": 2.3030865467083093,
+     "sd": 0.0072946601587129765,
+     "values": [
+      2.3082446503729863,
+      2.2979284430436318
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "1-layer transformer, d = 96 (the incumbent)",
+     "trainable_params": 186016,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the trigram (2.40) and 4-gram (1.82) floors",
+     "curve": [
+      3.221892260862847,
+      2.5817763062512373,
+      2.3964815962723693,
+      2.3082446503729863
+     ]
+    }
+   },
+   "lr_check": {
+    "morphogen": {
+     "0.001": 1.5385160024836846,
+     "0.004": 1.3663170189439218,
+     "0.008": 1.334340886608278,
+     "0.016": 1.3354196854070197,
+     "0.002": 1.4263630524150785
+    },
+    "transformer_s": {
+     "0.001": 2.911457481420287,
+     "0.004": 1.8929711387736183,
+     "0.008": 1.6759910116325585,
+     "0.016": 1.6136539220268484,
+     "0.002": 2.3082446503729863
+    }
+   },
+   "budget_check": {
+    "morphogen": {
+     "lr": 0.008,
+     "main_budget": 1.334340886608278,
+     "24m": 1.2134332026931633
+    }
+   },
+   "mechanism": "morphogen",
+   "null": "morphogen_nodiff",
+   "incumbent": "transformer_s",
+   "tuned": {
+    "morphogen": [
+     "0.008",
+     1.334340886608278
+    ],
+    "transformer_s": [
+     "0.016",
+     1.6136539220268484
+    ]
+   },
+   "mechanism_vs_null": 1.8939338600319435,
+   "mechanism_vs_incumbent": -0.8794776728342684,
+   "mechanism_vs_incumbent_tuned": -0.27931303541857044,
+   "reading": "carries the model, 0.28 bits/byte ahead of the incumbent at each one's best learning rate",
+   "level": "below the 5-gram floor (1.54)",
+   "reading_short": "carries the model, 0.28 ahead of the incumbent at best rates"
+  },
+  "e6_predcode": {
+   "title": "E6. Hierarchical predictive coding as the whole model",
+   "lineage": "APCN-LM",
+   "old_share": "about 30% (the non-transformer part)",
+   "crosses": "two levels of latent state, carried from byte to byte and corrected by prediction errors",
+   "budget_bytes": 6000000,
+   "ctx": 64,
+   "floors": {
+    "unigram": 4.390338004280385,
+    "bigram": 3.318003164181081,
+    "trigram": 2.399856674105256,
+    "4-gram": 1.8250366768908042,
+    "5-gram": 1.546986570324024,
+    "train_bytes": 6000000
+   },
+   "arms": {
+    "pc_k3": {
+     "bpb": 2.0352067795268085,
+     "sd": 0.00025566433072103656,
+     "values": [
+      2.035025997544848,
+      2.035387561508769
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "three inference steps per byte (the mechanism)",
+     "trainable_params": 230656,
+     "share": 0.21642619311875694,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the trigram (2.40) and 4-gram (1.83) floors",
+     "curve": [
+      2.35520209199782,
+      2.149964483428756,
+      2.0661592429086135,
+      2.035025997544848
+     ]
+    },
+    "pc_k1": {
+     "bpb": 2.021360687407531,
+     "sd": 0.0026313442104786413,
+     "values": [
+      2.0232213287423964,
+      2.0195000460726655
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "one inference step per byte",
+     "trainable_params": 230656,
+     "share": 0.21642619311875694,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the trigram (2.40) and 4-gram (1.83) floors",
+     "curve": [
+      2.352395856458149,
+      2.1302682509555604,
+      2.0496537696229,
+      2.0232213287423964
+     ]
+    },
+    "pc_g0": {
+     "bpb": 4.387666198354211,
+     "sd": 0.000391618720562658,
+     "values": [
+      4.38794311460716,
+      4.387389282101261
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "gains fixed at zero: the states never move (a unigram model by construction)",
+     "trainable_params": 230272,
+     "share": 0.2151195108393552,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the unigram (4.39) and bigram (3.32) floors",
+     "curve": [
+      4.3887491811683805,
+      4.387194189281689,
+      4.388725270205453,
+      4.38794311460716
+     ]
+    },
+    "pc_nomem": {
+     "bpb": 3.3178365635777545,
+     "sd": 2.1886017445470165e-05,
+     "values": [
+      3.3178210878264056,
+      3.3178520393291033
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "states reset every byte: inference without memory (the null arm)",
+     "trainable_params": 230656,
+     "share": 0.21642619311875694,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "between the bigram (3.32) and trigram (2.40) floors",
+     "curve": [
+      3.3373408177296957,
+      3.3258593097026727,
+      3.3214945673808836,
+      3.3178210878264056
+     ]
+    },
+    "gru": {
+     "bpb": 1.4791572291523636,
+     "sd": 0.006221831069495165,
+     "values": [
+      1.4835567280930009,
+      1.4747577302117265
+     ],
+     "seeds": [
+      0,
+      1
+     ],
+     "role": "a trained GRU with the same total state size (the incumbent)",
+     "trainable_params": 633344,
+     "share": 0.0,
+     "fixed_mechanism_params": 0,
+     "seeds_disagree": false,
+     "level": "below the 5-gram floor (1.55)",
+     "curve": [
+      1.8467960623509334,
+      1.5987168512437504,
+      1.5141480789653432,
+      1.4835567280930009
+     ]
+    }
+   },
+   "lr_check": {
+    "gru": {
+     "0.001": 1.60957666482935,
+     "0.004": 1.4093510915661882,
+     "0.008": 1.413815598605237,
+     "0.016": 1.5195182641108238,
+     "0.002": 1.4835567280930009
+    },
+    "pc_k3": {
+     "0.001": 2.1995251108888563,
+     "0.004": 1.9066591358410903,
+     "0.008": 1.8196432882606648,
+     "0.016": 1.7726362457644311,
+     "0.032": NaN,
+     "0.002": 2.035025997544848
+    }
+   },
+   "budget_check": {},
+   "mechanism": "pc_k3",
+   "null": "pc_nomem",
+   "incumbent": "gru",
+   "tuned": {
+    "gru": [
+     "0.004",
+     1.4093510915661882
+    ],
+    "pc_k3": [
+     "0.016",
+     1.7726362457644311
+    ]
+   },
+   "mechanism_vs_null": 1.282629784050946,
+   "mechanism_vs_incumbent": 0.5560495503744449,
+   "mechanism_vs_incumbent_tuned": 0.3632851541982429,
+   "reading": "carries the model, 0.36 bits/byte behind the incumbent at each one's best learning rate",
+   "level": "between the trigram (2.40) and 4-gram (1.83) floors",
+   "reading_short": "carries the model, 0.36 behind the incumbent at best rates"
+  }
+ }
+}

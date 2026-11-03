@@ -1,0 +1,54 @@
+{
+ "exp": "e3_genome",
+ "arm": "genome_frozen",
+ "seed": 1,
+ "ctx": 256,
+ "budget": {
+  "bytes": 8000000,
+  "batch": 16,
+  "lr": 0.002,
+  "warmup": 100,
+  "clip": 1.0,
+  "weight_decay": 0.05,
+  "eval_every": 0
+ },
+ "mechanism_params": 0,
+ "trainable_params": 16644,
+ "share": 0.0,
+ "val_bpb": 3.7471345213670317,
+ "curve": [
+  {
+   "step": 488,
+   "bytes": 1998848,
+   "train_bits": 3.8608123328218116,
+   "val_bpb": 3.8531333624952357,
+   "sec": 28.001118183135986
+  },
+  {
+   "step": 976,
+   "bytes": 3997696,
+   "train_bits": 3.781399976682065,
+   "val_bpb": 3.7796105642730713,
+   "sec": 55.0868124961853
+  },
+  {
+   "step": 1464,
+   "bytes": 5996544,
+   "train_bits": 3.7561576496186504,
+   "val_bpb": 3.7553224003962966,
+   "sec": 83.59806275367737
+  },
+  {
+   "step": 1953,
+   "bytes": 7999488,
+   "train_bits": 3.748932101232115,
+   "val_bpb": 3.7471345213670317,
+   "sec": 111.5460319519043
+  }
+ ],
+ "wall_s": 111.54610776901245,
+ "torch": "2.14.1+cu130",
+ "threads": 2,
+ "params": 16644,
+ "phenotype_weights": 66496
+}

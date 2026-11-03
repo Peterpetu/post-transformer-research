@@ -1,0 +1,956 @@
+{
+ "dpnca_eval": [
+  {
+   "step": 250,
+   "tokens": 8192000,
+   "val_ce": 5.4955
+  },
+  {
+   "step": 500,
+   "tokens": 16384000,
+   "val_ce": 4.7138
+  },
+  {
+   "step": 750,
+   "tokens": 24576000,
+   "val_ce": 4.5247
+  },
+  {
+   "step": 1000,
+   "tokens": 32768000,
+   "val_ce": 4.2912
+  },
+  {
+   "step": 1250,
+   "tokens": 40960000,
+   "val_ce": 4.1159
+  },
+  {
+   "step": 1500,
+   "tokens": 49152000,
+   "val_ce": 3.7549
+  },
+  {
+   "step": 1750,
+   "tokens": 57344000,
+   "val_ce": 4.0253
+  },
+  {
+   "step": 2000,
+   "tokens": 65536000,
+   "val_ce": 4.0076
+  },
+  {
+   "step": 2250,
+   "tokens": 73728000,
+   "val_ce": 4.1006
+  },
+  {
+   "step": 2500,
+   "tokens": 81920000,
+   "val_ce": 3.713
+  },
+  {
+   "step": 2750,
+   "tokens": 90112000,
+   "val_ce": 3.7406
+  },
+  {
+   "step": 3000,
+   "tokens": 98304000,
+   "val_ce": 3.7237
+  },
+  {
+   "step": 3250,
+   "tokens": 106496000,
+   "val_ce": 3.5907
+  },
+  {
+   "step": 3500,
+   "tokens": 114688000,
+   "val_ce": 3.6886
+  },
+  {
+   "step": 3750,
+   "tokens": 122880000,
+   "val_ce": 3.7771
+  },
+  {
+   "step": 4000,
+   "tokens": 131072000,
+   "val_ce": 3.6068
+  },
+  {
+   "step": 4250,
+   "tokens": 139264000,
+   "val_ce": 3.544
+  },
+  {
+   "step": 4500,
+   "tokens": 147456000,
+   "val_ce": 3.4946
+  },
+  {
+   "step": 4750,
+   "tokens": 155648000,
+   "val_ce": 3.5617
+  },
+  {
+   "step": 5000,
+   "tokens": 163840000,
+   "val_ce": 3.3431
+  },
+  {
+   "step": 5250,
+   "tokens": 172032000,
+   "val_ce": 3.5431
+  },
+  {
+   "step": 5500,
+   "tokens": 180224000,
+   "val_ce": 3.5014
+  },
+  {
+   "step": 5750,
+   "tokens": 188416000,
+   "val_ce": 3.4739
+  },
+  {
+   "step": 6000,
+   "tokens": 196608000,
+   "val_ce": 3.4642
+  },
+  {
+   "step": 6250,
+   "tokens": 204800000,
+   "val_ce": 3.3566
+  },
+  {
+   "step": 6500,
+   "tokens": 212992000,
+   "val_ce": 3.6064
+  },
+  {
+   "step": 6750,
+   "tokens": 221184000,
+   "val_ce": 3.411
+  },
+  {
+   "step": 7000,
+   "tokens": 229376000,
+   "val_ce": 3.5551
+  },
+  {
+   "step": 7250,
+   "tokens": 237568000,
+   "val_ce": 3.5424
+  },
+  {
+   "step": 7500,
+   "tokens": 245760000,
+   "val_ce": 3.318
+  }
+ ],
+ "dpnca_full_val_ce": 3.512,
+ "dpnca_gpt2_ce": 3.346,
+ "ncalm_2b": {
+  "gpt2": [
+   {
+    "step": 1000,
+    "val_ppl": 154.424
+   },
+   {
+    "step": 2000,
+    "val_ppl": 43.296
+   },
+   {
+    "step": 3000,
+    "val_ppl": 30.972
+   },
+   {
+    "step": 4000,
+    "val_ppl": 27.257
+   },
+   {
+    "step": 5000,
+    "val_ppl": 25.645
+   },
+   {
+    "step": 6000,
+    "val_ppl": 23.714
+   },
+   {
+    "step": 7000,
+    "val_ppl": 21.816
+   },
+   {
+    "step": 8000,
+    "val_ppl": 20.79
+   },
+   {
+    "step": 9000,
+    "val_ppl": 20.687
+   },
+   {
+    "step": 10000,
+    "val_ppl": 19.838
+   },
+   {
+    "step": 11000,
+    "val_ppl": 20.376
+   },
+   {
+    "step": 12000,
+    "val_ppl": 18.182
+   },
+   {
+    "step": 13000,
+    "val_ppl": 17.257
+   },
+   {
+    "step": 14000,
+    "val_ppl": 17.634
+   },
+   {
+    "step": 15000,
+    "val_ppl": 17.462
+   },
+   {
+    "step": 16000,
+    "val_ppl": 16.196
+   },
+   {
+    "step": 17000,
+    "val_ppl": 15.993
+   },
+   {
+    "step": 18000,
+    "val_ppl": 17.917
+   },
+   {
+    "step": 19000,
+    "val_ppl": 16.412
+   },
+   {
+    "step": 20000,
+    "val_ppl": 15.772
+   },
+   {
+    "step": 21000,
+    "val_ppl": 16.719
+   },
+   {
+    "step": 22000,
+    "val_ppl": 15.956
+   },
+   {
+    "step": 23000,
+    "val_ppl": 15.523
+   },
+   {
+    "step": 24000,
+    "val_ppl": 15.612
+   },
+   {
+    "step": 25000,
+    "val_ppl": 14.77
+   },
+   {
+    "step": 26000,
+    "val_ppl": 15.365
+   },
+   {
+    "step": 27000,
+    "val_ppl": 15.034
+   },
+   {
+    "step": 28000,
+    "val_ppl": 14.965
+   },
+   {
+    "step": 29000,
+    "val_ppl": 15.571
+   },
+   {
+    "step": 30000,
+    "val_ppl": 14.454
+   }
+  ],
+  "v7_1": [
+   {
+    "step": 1000,
+    "val_ppl": 283.587
+   },
+   {
+    "step": 2000,
+    "val_ppl": 76.814
+   },
+   {
+    "step": 3000,
+    "val_ppl": 45.36
+   },
+   {
+    "step": 4000,
+    "val_ppl": 38.992
+   },
+   {
+    "step": 5000,
+    "val_ppl": 33.03
+   },
+   {
+    "step": 6000,
+    "val_ppl": 32.52
+   },
+   {
+    "step": 7000,
+    "val_ppl": 27.701
+   },
+   {
+    "step": 8000,
+    "val_ppl": 27.814
+   },
+   {
+    "step": 9000,
+    "val_ppl": 21.185
+   },
+   {
+    "step": 10000,
+    "val_ppl": 26.065
+   },
+   {
+    "step": 11000,
+    "val_ppl": 23.403
+   },
+   {
+    "step": 12000,
+    "val_ppl": 21.184
+   },
+   {
+    "step": 13000,
+    "val_ppl": 20.963
+   },
+   {
+    "step": 14000,
+    "val_ppl": 23.02
+   },
+   {
+    "step": 15000,
+    "val_ppl": 23.21
+   },
+   {
+    "step": 16000,
+    "val_ppl": 20.833
+   },
+   {
+    "step": 17000,
+    "val_ppl": 20.144
+   },
+   {
+    "step": 18000,
+    "val_ppl": 16.922
+   },
+   {
+    "step": 19000,
+    "val_ppl": 17.947
+   },
+   {
+    "step": 20000,
+    "val_ppl": 19.344
+   },
+   {
+    "step": 21000,
+    "val_ppl": 19.462
+   },
+   {
+    "step": 22000,
+    "val_ppl": 19.282
+   },
+   {
+    "step": 23000,
+    "val_ppl": 16.934
+   },
+   {
+    "step": 24000,
+    "val_ppl": 18.381
+   },
+   {
+    "step": 25000,
+    "val_ppl": 18.651
+   },
+   {
+    "step": 26000,
+    "val_ppl": 17.703
+   },
+   {
+    "step": 27000,
+    "val_ppl": 15.68
+   },
+   {
+    "step": 28000,
+    "val_ppl": 18.618
+   },
+   {
+    "step": 29000,
+    "val_ppl": 18.005
+   },
+   {
+    "step": 30000,
+    "val_ppl": 17.329
+   }
+  ]
+ },
+ "ncalm_250m": {
+  "gpt2": [
+   {
+    "step": 200,
+    "val_ppl": 481.648
+   },
+   {
+    "step": 400,
+    "val_ppl": 234.619
+   },
+   {
+    "step": 600,
+    "val_ppl": 129.864
+   },
+   {
+    "step": 800,
+    "val_ppl": 81.08
+   },
+   {
+    "step": 1000,
+    "val_ppl": 66.495
+   },
+   {
+    "step": 1200,
+    "val_ppl": 53.066
+   },
+   {
+    "step": 1400,
+    "val_ppl": 44.779
+   },
+   {
+    "step": 1600,
+    "val_ppl": 41.8
+   },
+   {
+    "step": 1800,
+    "val_ppl": 39.238
+   },
+   {
+    "step": 2000,
+    "val_ppl": 39.185
+   },
+   {
+    "step": 2200,
+    "val_ppl": 36.345
+   },
+   {
+    "step": 2400,
+    "val_ppl": 33.082
+   },
+   {
+    "step": 2600,
+    "val_ppl": 33.29
+   },
+   {
+    "step": 2800,
+    "val_ppl": 33.893
+   },
+   {
+    "step": 3000,
+    "val_ppl": 28.961
+   },
+   {
+    "step": 3200,
+    "val_ppl": 29.55
+   },
+   {
+    "step": 3400,
+    "val_ppl": 27.566
+   },
+   {
+    "step": 3600,
+    "val_ppl": 31.349
+   },
+   {
+    "step": 3800,
+    "val_ppl": 27.656
+   }
+  ],
+  "v13": [
+   {
+    "step": 400,
+    "val_ppl": 567.175
+   },
+   {
+    "step": 600,
+    "val_ppl": 382.476
+   },
+   {
+    "step": 800,
+    "val_ppl": 259.758
+   },
+   {
+    "step": 1000,
+    "val_ppl": 203.261
+   },
+   {
+    "step": 1200,
+    "val_ppl": 147.298
+   },
+   {
+    "step": 1400,
+    "val_ppl": 122.533
+   },
+   {
+    "step": 1600,
+    "val_ppl": 105.42
+   },
+   {
+    "step": 1800,
+    "val_ppl": 94.223
+   },
+   {
+    "step": 2000,
+    "val_ppl": 90.695
+   },
+   {
+    "step": 2200,
+    "val_ppl": 68.954
+   },
+   {
+    "step": 2400,
+    "val_ppl": 72.755
+   },
+   {
+    "step": 2600,
+    "val_ppl": 68.691
+   },
+   {
+    "step": 2800,
+    "val_ppl": 67.068
+   },
+   {
+    "step": 3000,
+    "val_ppl": 64.378
+   },
+   {
+    "step": 3200,
+    "val_ppl": 56.984
+   },
+   {
+    "step": 3400,
+    "val_ppl": 59.365
+   },
+   {
+    "step": 3600,
+    "val_ppl": 62.559
+   },
+   {
+    "step": 3800,
+    "val_ppl": 57.878
+   }
+  ],
+  "v15": [
+   {
+    "step": 200,
+    "val_ppl": 2886.489
+   },
+   {
+    "step": 400,
+    "val_ppl": 2408.743
+   },
+   {
+    "step": 600,
+    "val_ppl": 1749.446
+   },
+   {
+    "step": 800,
+    "val_ppl": 1363.279
+   },
+   {
+    "step": 1000,
+    "val_ppl": 1207.985
+   },
+   {
+    "step": 1200,
+    "val_ppl": 949.748
+   },
+   {
+    "step": 1400,
+    "val_ppl": 887.894
+   },
+   {
+    "step": 1600,
+    "val_ppl": 725.451
+   },
+   {
+    "step": 1800,
+    "val_ppl": 717.975
+   },
+   {
+    "step": 2000,
+    "val_ppl": 616.367
+   },
+   {
+    "step": 2200,
+    "val_ppl": 565.493
+   },
+   {
+    "step": 2400,
+    "val_ppl": 522.488
+   },
+   {
+    "step": 2600,
+    "val_ppl": 566.686
+   },
+   {
+    "step": 2800,
+    "val_ppl": 554.149
+   },
+   {
+    "step": 3000,
+    "val_ppl": 611.752
+   },
+   {
+    "step": 3200,
+    "val_ppl": 629.055
+   },
+   {
+    "step": 3400,
+    "val_ppl": 554.339
+   },
+   {
+    "step": 3600,
+    "val_ppl": 569.026
+   },
+   {
+    "step": 3800,
+    "val_ppl": 614.73
+   }
+  ]
+ },
+ "ncalm_250m_best": [
+  {
+   "name": "GPT-2 baseline",
+   "ppl": 27.57,
+   "archived": true,
+   "attention": "12 blocks"
+  },
+  {
+   "name": "v13 gated transformer + morphogen field",
+   "ppl": 56.98,
+   "archived": true,
+   "attention": "yes"
+  },
+  {
+   "name": "v10 one shared rule \u00d7 64, no attention",
+   "ppl": 437.1,
+   "archived": false,
+   "attention": "none"
+  },
+  {
+   "name": "v15 2D reaction\u2013diffusion NCA, no attention",
+   "ppl": 522.5,
+   "archived": true,
+   "attention": "none"
+  },
+  {
+   "name": "v9 / v11 / v12 attention-free 1D substrates",
+   "ppl_lo": 369,
+   "ppl_hi": 2425,
+   "archived": false,
+   "attention": "none"
+  }
+ ],
+ "wavelm_ladder": [
+  {
+   "arch": "wavelm",
+   "params": 519907,
+   "bpb": 1.5277,
+   "lr": 0.001
+  },
+  {
+   "arch": "gpt",
+   "params": 492672,
+   "bpb": 1.3851,
+   "lr": 0.003
+  },
+  {
+   "arch": "wavelm",
+   "params": 1116835,
+   "bpb": 1.448,
+   "lr": 0.001
+  },
+  {
+   "arch": "gpt",
+   "params": 1215744,
+   "bpb": 1.0927,
+   "lr": 0.003
+  },
+  {
+   "arch": "wavelm",
+   "params": 2974243,
+   "bpb": 1.3643,
+   "lr": 0.001
+  },
+  {
+   "arch": "gpt",
+   "params": 2989824,
+   "bpb": 1.0372,
+   "lr": 0.003
+  },
+  {
+   "arch": "wavelm",
+   "params": 6827043,
+   "bpb": 1.3237,
+   "lr": 0.001
+  },
+  {
+   "arch": "gpt",
+   "params": 7139712,
+   "bpb": 0.9466,
+   "lr": 0.003
+  }
+ ],
+ "wavelm_ablation": [
+  {
+   "name": "remove saturating nonlinearity",
+   "delta": 0.737
+  },
+  {
+   "name": "remove channel mixing",
+   "delta": 0.491
+  },
+  {
+   "name": "depth 12 \u2192 4 internal steps",
+   "delta": 0.1
+  },
+  {
+   "name": "real-valued twin (no complex field)",
+   "delta": 0.196
+  },
+  {
+   "name": "remove phase carrier",
+   "delta": 0.019
+  },
+  {
+   "name": "remove Born-rule readout",
+   "delta": -0.029
+  },
+  {
+   "name": "untie conv kernel across steps",
+   "delta": -0.08
+  }
+ ],
+ "wavelm_pile_bpb": 2.298,
+ "hdc_mqar": [
+  {
+   "id": "bptt",
+   "label": "BPTT (reference)",
+   "recall": 1.0
+  },
+  {
+   "id": "l1",
+   "label": "L1: depth credit, exact key path, explicit reverse sweep",
+   "recall": 0.998
+  },
+  {
+   "id": "l1fa",
+   "label": "L1-FA: fixed random feedback instead of the weight transpose",
+   "recall": 0.997
+  },
+  {
+   "id": "l1vf_acyclic",
+   "label": "L1-VF acyclic",
+   "recall": 0.995
+  },
+  {
+   "id": "l0",
+   "label": "L0: pure local, no inter-block credit",
+   "recall": 0.261
+  },
+  {
+   "id": "l1vf_cyclic",
+   "label": "L1-VF cyclic: joint space-time relaxation, no backward sweep",
+   "recall": 0.012
+  }
+ ],
+ "hdc_twin": {
+  "ripple": 3.592,
+  "bptt": 3.476,
+  "gap_pct": 3.3,
+  "first_reported": {
+   "ripple": 3.779,
+   "bptt": 3.468,
+   "gap_pct": 9.0
+  }
+ },
+ "hdc_pile": {
+  "ripple_ppl": 517.2,
+  "anchor_ppl": 28.9
+ },
+ "dev": {
+  "birth": [
+   {
+    "name": "null (random logits)",
+    "ce": 9.011
+   },
+   {
+    "name": "newborn, seed 0",
+    "ce": 2.863
+   },
+   {
+    "name": "newborn, seed 1",
+    "ce": 2.836
+   },
+   {
+    "name": "trained adult",
+    "ce": 1.857
+   }
+  ],
+  "transfer": [
+   {
+    "name": "copy from free-trained source",
+    "delta": 1.328
+   },
+   {
+    "name": "copy from bottleneck-trained source",
+    "delta": 0.006
+   },
+   {
+    "name": "decode from bottleneck-trained genome",
+    "delta": 0.007
+   }
+  ],
+  "shift": [
+   {
+    "name": "copy weights",
+    "ce": 4.079
+   },
+   {
+    "name": "sieve c2",
+    "ce": 4.317
+   },
+   {
+    "name": "sieve c8",
+    "ce": 4.488
+   },
+   {
+    "name": "sieve c4",
+    "ce": 4.569
+   },
+   {
+    "name": "sieve c16",
+    "ce": 4.703
+   },
+   {
+    "name": "from scratch",
+    "ce": 4.737
+   }
+  ],
+  "rehearsal": [
+   {
+    "name": "replay (kept data)",
+    "ce": 1.981
+   },
+   {
+    "name": "generative rehearsal",
+    "ce": 2.125
+   },
+   {
+    "name": "LwF",
+    "ce": 3.189
+   },
+   {
+    "name": "EWC",
+    "ce": 3.358
+   }
+  ],
+  "spore": [
+   {
+    "name": "trigram",
+    "ce": 3.168
+   },
+   {
+    "name": "SPORE (backprop-free HDC LM)",
+    "ce": 2.408
+   },
+   {
+    "name": "13M transformer",
+    "ce": 1.857
+   }
+  ]
+ },
+ "fly_rung1b": {
+  "P128": [
+   {
+    "id": "sparse",
+    "label": "Kenyon-cell sparse address",
+    "acc": 0.9972,
+    "sd": 0.0022,
+    "role": "hypothesis"
+   },
+   {
+    "id": "dense",
+    "label": "Gated DeltaNet, 16-d keys",
+    "acc": 0.7891,
+    "sd": 0.0339,
+    "role": "baseline"
+   },
+   {
+    "id": "dense_c",
+    "label": "dense key, equal compute",
+    "acc": 0.9422,
+    "sd": 0.0258,
+    "role": "control"
+   },
+   {
+    "id": "dense_wide",
+    "label": "dense key, equal memory",
+    "acc": 1.0,
+    "sd": 0.0,
+    "role": "control"
+   },
+   {
+    "id": "product",
+    "label": "product keys",
+    "acc": 0.999,
+    "sd": 0.002,
+    "role": "control"
+   }
+  ],
+  "P64_extra": [
+   {
+    "id": "sparse_learned",
+    "label": "learned expansion (64 pairs)",
+    "acc": 1.0,
+    "sd": 0.0,
+    "role": "control"
+   },
+   {
+    "id": "expand_dense",
+    "label": "expansion, no sparsity (64 pairs)",
+    "acc": 0.8103,
+    "sd": 0.0595,
+    "role": "control"
+   }
+  ],
+  "seed_pairs_won": 15,
+  "seed_pairs_total": 15,
+  "verdict": "FALSIFIED",
+  "chance": 0.015625
+ },
+ "fly_rung1": {
+  "state_minus_free": [
+   0.0162,
+   0.0059
+  ],
+  "single_wide_minus_state": [
+   0.0399,
+   0.0935
+  ],
+  "verdict": "FALSIFIED"
+ }
+}

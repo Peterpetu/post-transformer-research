@@ -1,0 +1,56 @@
+{
+ "exp": "e2_reservoir",
+ "arm": "gru",
+ "seed": 1,
+ "ctx": 64,
+ "budget": {
+  "bytes": 6000000,
+  "batch": 64,
+  "lr": 0.002,
+  "warmup": 100,
+  "clip": 1.0,
+  "weight_decay": 0.05,
+  "eval_every": 0
+ },
+ "mechanism_params": 0,
+ "trainable_params": 395008,
+ "share": 0.0,
+ "val_bpb": 1.55893606425147,
+ "curve": [
+  {
+   "step": 366,
+   "bytes": 1499136,
+   "train_bits": 1.9952320547934348,
+   "val_bpb": 1.886486602790788,
+   "sec": 39.961649656295776
+  },
+  {
+   "step": 732,
+   "bytes": 2998272,
+   "train_bits": 1.7420003831485613,
+   "val_bpb": 1.6649511604274092,
+   "sec": 79.15345191955566
+  },
+  {
+   "step": 1098,
+   "bytes": 4497408,
+   "train_bits": 1.6658501457752377,
+   "val_bpb": 1.5856428698610634,
+   "sec": 120.27704501152039
+  },
+  {
+   "step": 1464,
+   "bytes": 5996544,
+   "train_bits": 1.6366508109238946,
+   "val_bpb": 1.55893606425147,
+   "sec": 160.0971221923828
+  }
+ ],
+ "wall_s": 160.09719443321228,
+ "torch": "2.14.1+cu130",
+ "threads": 2,
+ "d": 128,
+ "params": 395008,
+ "fixed_mechanism_params": 0,
+ "share_all": 0.0
+}

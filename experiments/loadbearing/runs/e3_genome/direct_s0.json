@@ -1,0 +1,54 @@
+{
+ "exp": "e3_genome",
+ "arm": "direct",
+ "seed": 0,
+ "ctx": 256,
+ "budget": {
+  "bytes": 8000000,
+  "batch": 16,
+  "lr": 0.002,
+  "warmup": 100,
+  "clip": 1.0,
+  "weight_decay": 0.05,
+  "eval_every": 0
+ },
+ "mechanism_params": 0,
+ "trainable_params": 66500,
+ "share": 0.0,
+ "val_bpb": 1.6900990064568109,
+ "curve": [
+  {
+   "step": 488,
+   "bytes": 1998848,
+   "train_bits": 2.0091850313355053,
+   "val_bpb": 1.9359286750854072,
+   "sec": 35.013254165649414
+  },
+  {
+   "step": 976,
+   "bytes": 3997696,
+   "train_bits": 1.8625654668742413,
+   "val_bpb": 1.7803329289066872,
+   "sec": 73.71265006065369
+  },
+  {
+   "step": 1464,
+   "bytes": 5996544,
+   "train_bits": 1.7885081276551036,
+   "val_bpb": 1.7115357947225214,
+   "sec": 108.94621229171753
+  },
+  {
+   "step": 1953,
+   "bytes": 7999488,
+   "train_bits": 1.7639934935840198,
+   "val_bpb": 1.6900990064568109,
+   "sec": 144.45232462882996
+  }
+ ],
+ "wall_s": 144.45245218276978,
+ "torch": "2.14.1+cu130",
+ "threads": 2,
+ "params": 66500,
+ "phenotype_weights": 66496
+}

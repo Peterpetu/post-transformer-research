@@ -1,0 +1,98 @@
+[
+ {
+  "programme": "RGLM",
+  "mechanism": "logit adjustment from the hierarchy",
+  "how": "a scalar broadcast across the vocabulary axis, which the softmax cancels",
+  "cut": "noop"
+ },
+ {
+  "programme": "RGLM",
+  "mechanism": "the second-level hierarchy",
+  "how": "computed and normalised, never read by anything downstream",
+  "cut": "flag"
+ },
+ {
+  "programme": "RGLM",
+  "mechanism": "inter-level messages",
+  "how": "detached from the graph, so they enter as constants",
+  "cut": "detached"
+ },
+ {
+  "programme": "DRN",
+  "mechanism": "Kuramoto “resonance”",
+  "how": "detached and converted to a scalar; gradient exactly zero",
+  "cut": "detached"
+ },
+ {
+  "programme": "DPNCA-LM",
+  "mechanism": "the two routing regularisers",
+  "how": "computed from routing weights detached before accumulation",
+  "cut": "detached"
+ },
+ {
+  "programme": "DPNCA-LM",
+  "mechanism": "running statistics over NCA steps 3–5",
+  "how": "reset after step 2 and never consumed; half the statistics computation per layer is dead",
+  "cut": "flag"
+ },
+ {
+  "programme": "NEN",
+  "mechanism": "free-energy relaxation",
+  "how": "the initialisation sets every prediction error to its minimum, so the thirty-step relaxation has nothing to do after its first step",
+  "cut": "noop"
+ },
+ {
+  "programme": "FEDN",
+  "mechanism": "free-energy descent",
+  "how": "1 and 32 descent steps differ by 0.004 nats; the descent is switched off at inference",
+  "cut": "negligible"
+ },
+ {
+  "programme": "FEDN",
+  "mechanism": "the criticality term",
+  "how": "its running statistic is only ever written into a buffer under no-grad, which makes the term an additive constant",
+  "cut": "detached"
+ },
+ {
+  "programme": "Mamba+DeltaNet",
+  "mechanism": "expected free energy",
+  "how": "0.33–0.76% of the loss; the phases that compute it are 0.2% of the compute and their gradients are detached",
+  "cut": "detached"
+ },
+ {
+  "programme": "HARM-LM",
+  "mechanism": "expected free energy",
+  "how": "about 10⁻⁵ nats of a loss near 8",
+  "cut": "negligible"
+ },
+ {
+  "programme": "HARM-LM",
+  "mechanism": "the product-of-experts fusion gate, the one novel joint",
+  "how": "an attribute guard that never matches, so the gate stays at its warm-start value in every run while the log reports it as refined",
+  "cut": "flag"
+ },
+ {
+  "programme": "HARM-LM",
+  "mechanism": "the quantile head’s state",
+  "how": "updated on every training byte, never read, absent from the checkpoint",
+  "cut": "flag"
+ },
+ {
+  "programme": "NCALM v14",
+  "mechanism": "the lag coupling between NCA steps",
+  "how": "the model’s own Jacobian: self-weight 0.997, lag ≥ 3 exactly zero",
+  "cut": "negligible"
+ },
+ {
+  "programme": "APEIRON",
+  "mechanism": "the entire graph substrate",
+  "how": "an unnormalised message product leaves 89.3% of the parameters reaching 0.009% of the logits; the output at zero hidden state is a constant vector",
+  "cut": "negligible"
+ },
+ {
+  "programme": "APCN-LM / PROTHEUS",
+  "mechanism": "the expected-free-energy step",
+  "how": "behind a flag that the competitive configuration sets to false",
+  "cut": "flag"
+ }
+]

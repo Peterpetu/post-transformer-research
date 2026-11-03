@@ -1,0 +1,53 @@
+{
+ "exp": "e5_morphogen",
+ "arm": "transformer_s",
+ "seed": 0,
+ "ctx": 256,
+ "budget": {
+  "bytes": 8000000,
+  "batch": 16,
+  "lr": 0.002,
+  "warmup": 100,
+  "clip": 1.0,
+  "weight_decay": 0.05,
+  "eval_every": 0
+ },
+ "mechanism_params": 0,
+ "trainable_params": 186016,
+ "share": 0.0,
+ "val_bpb": 2.3082446503729863,
+ "curve": [
+  {
+   "step": 488,
+   "bytes": 1998848,
+   "train_bits": 3.25316246031106,
+   "val_bpb": 3.221892260862847,
+   "sec": 32.07637095451355
+  },
+  {
+   "step": 976,
+   "bytes": 3997696,
+   "train_bits": 2.6496052830204624,
+   "val_bpb": 2.5817763062512373,
+   "sec": 63.88875412940979
+  },
+  {
+   "step": 1464,
+   "bytes": 5996544,
+   "train_bits": 2.4590010833683213,
+   "val_bpb": 2.3964815962723693,
+   "sec": 96.41971349716187
+  },
+  {
+   "step": 1953,
+   "bytes": 7999488,
+   "train_bits": 2.3769382406823736,
+   "val_bpb": 2.3082446503729863,
+   "sec": 128.13015580177307
+  }
+ ],
+ "wall_s": 128.13023114204407,
+ "torch": "2.14.1+cu130",
+ "threads": 2,
+ "params": 186016
+}

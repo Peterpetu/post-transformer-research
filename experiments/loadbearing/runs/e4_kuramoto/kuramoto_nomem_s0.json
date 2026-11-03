@@ -1,0 +1,53 @@
+{
+ "exp": "e4_kuramoto",
+ "arm": "kuramoto_nomem",
+ "seed": 0,
+ "ctx": 64,
+ "budget": {
+  "bytes": 6000000,
+  "batch": 64,
+  "lr": 0.002,
+  "warmup": 100,
+  "clip": 1.0,
+  "weight_decay": 0.05,
+  "eval_every": 0
+ },
+ "mechanism_params": 0,
+ "trainable_params": 262656,
+ "share": 0.0,
+ "val_bpb": 3.318272230566366,
+ "curve": [
+  {
+   "step": 366,
+   "bytes": 1499136,
+   "train_bits": 3.3462458411954,
+   "val_bpb": 3.336928156107866,
+   "sec": 27.608003854751587
+  },
+  {
+   "step": 732,
+   "bytes": 2998272,
+   "train_bits": 3.33782405716183,
+   "val_bpb": 3.3289845891830674,
+   "sec": 54.65766668319702
+  },
+  {
+   "step": 1098,
+   "bytes": 4497408,
+   "train_bits": 3.331030487918426,
+   "val_bpb": 3.3203282240383944,
+   "sec": 82.5010416507721
+  },
+  {
+   "step": 1464,
+   "bytes": 5996544,
+   "train_bits": 3.321408244343914,
+   "val_bpb": 3.318272230566366,
+   "sec": 108.95813941955566
+  }
+ ],
+ "wall_s": 108.95823001861572,
+ "torch": "2.14.1+cu130",
+ "threads": 2,
+ "params": 262656
+}
